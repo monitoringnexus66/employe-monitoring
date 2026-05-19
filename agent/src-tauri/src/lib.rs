@@ -34,31 +34,23 @@ fn get_active_app() -> Result<ActiveAppResponse, String> {
 
 #[tauri::command]
 fn take_screenshot() -> Result<ScreenshotResponse, String> {
-    let temp_path = "/tmp/nexustrack_screenshot.jpg";
+    let monitors = xcap::Monitor::all().map_err(|e| e.to_string())?;
     
-    // macOS built-in screenshot tool
-    let output = Command::new("screencapture")
-        .arg("-x") // silent
-        .arg("-m") // only main monitor
-        .arg("-t").arg("jpg") // compress as jpg to avoid 413 payload too large
-        .arg(temp_path)
-        .output();
-
-    if let Ok(cmd) = output {
-        if cmd.status.success() {
-            if let Ok(bytes) = fs::read(temp_path) {
-                let base64_str = general_purpose::STANDARD.encode(&bytes);
-                // Clean up
-                let _ = fs::remove_file(temp_path);
-                
-                return Ok(ScreenshotResponse {
-                    base64_image: format!("data:image/jpeg;base64,{}", base64_str),
-                });
-            }
-        }
+    if let Some(monitor) = monitors.first() {
+        let image = monitor.capture_image().map_err(|e| e.to_string())?;
+        
+        let mut buffer = std::io::Cursor::new(Vec::new());
+        image.write_to(&mut buffer, image::ImageFormat::Jpeg)
+            .map_err(|e| e.to_string())?;
+            
+        let base64_str = general_purpose::STANDARD.encode(buffer.into_inner());
+        
+        return Ok(ScreenshotResponse {
+            base64_image: format!("data:image/jpeg;base64,{}", base64_str),
+        });
     }
     
-    Err("Failed to capture screen".to_string())
+    Err("No monitors found".to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
