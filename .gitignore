@@ -1,0 +1,10 @@
+node_modules/
+.next/
+dist/
+.env
+.env.local
+.DS_Store
+*.zip
+deploy.zip
+web/.vercel/
+agent/src-tauri/target/
