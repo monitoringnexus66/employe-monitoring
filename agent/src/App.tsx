@@ -37,9 +37,11 @@ function App() {
     try {
       const machineId = "device_" + Math.random().toString(36).substr(2, 9);
       
-      const res = await fetch('https://web-five-theta-22.vercel.app/api/agent/login', {
+      const res = await fetch('https://employe-monitoring.vercel.app/api/agent/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password, machineId })
       });
       
@@ -76,7 +78,7 @@ function App() {
     const fetchActiveWindow = async () => {
       try {
         const app = await invoke<ActiveApp>("get_active_app");
-        fetch('https://web-five-theta-22.vercel.app/api/agent/activity', {
+        fetch('https://employe-monitoring.vercel.app/api/agent/activity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -105,7 +107,7 @@ function App() {
     const fetchScreenshot = async () => {
       try {
         const screenshot = await invoke<Screenshot>("take_screenshot");
-        fetch('https://web-five-theta-22.vercel.app/api/agent/screenshot', {
+        fetch('https://employe-monitoring.vercel.app/api/agent/screenshot', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
