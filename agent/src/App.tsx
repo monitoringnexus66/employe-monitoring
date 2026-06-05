@@ -89,7 +89,14 @@ function App() {
             durationSeconds: 5,
             isIdle: false
           })
-        }).catch(err => console.error("Telemetry failed:", err));
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.screenshotInterval !== undefined) {
+             setScreenshotInterval(data.screenshotInterval);
+          }
+        })
+        .catch(err => console.error("Telemetry failed:", err));
         
       } catch (e) {
         console.error("Failed to get active window:", e);

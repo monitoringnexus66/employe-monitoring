@@ -37,7 +37,27 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, activityId: activity.id }, { headers: { 'Access-Control-Allow-Origin': '*' } });
+    // Check for updated settings to push back to agent
+    const device = await prisma.device.findUnique({
+      where: { id: deviceId },
+      select: { userId: true }
+    });
+    
+    let screenshotInterval;
+    if (device) {
+       const membership = await prisma.tenantMembership.findUnique({
+         where: { userId_tenantId: { userId: device.userId, tenantId } }
+       });
+       if (membership) {
+         screenshotInterval = membership.screenshotInterval;
+       }
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      activityId: activity.id,
+      screenshotInterval
+    }, { headers: { 'Access-Control-Allow-Origin': '*' } });
   } catch (error) {
     console.error('Activity log error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500, headers: { 'Access-Control-Allow-Origin': '*' } });

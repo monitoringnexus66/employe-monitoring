@@ -1,22 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { Settings, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Settings, Loader2, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function CaptureSettings({ membershipId, initialInterval }: { membershipId: string, initialInterval: number }) {
   const [interval, setInterval] = useState(initialInterval);
   const [isSaving, setIsSaving] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const router = useRouter();
+
+  // Sync state when initialInterval changes from server (e.g. after router.refresh)
+  useEffect(() => {
+    setInterval(initialInterval);
+  }, [initialInterval]);
 
   const handleSave = async () => {
     setIsSaving(true);
+    setShowSuccess(false);
     try {
       await fetch(`/api/employees/settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ membershipId, screenshotInterval: interval })
       });
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
       router.refresh();
     } catch (e) {
       console.error(e);
@@ -26,7 +35,7 @@ export default function CaptureSettings({ membershipId, initialInterval }: { mem
   };
 
   return (
-    <div className="glass-card rounded-xl p-6">
+    <div className="glass-card rounded-xl p-6 relative">
       <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
         <Settings className="w-5 h-5 text-gray-400" /> Capture Settings
       </h2>
@@ -48,10 +57,15 @@ export default function CaptureSettings({ membershipId, initialInterval }: { mem
         <button 
           onClick={handleSave} 
           disabled={isSaving || interval === initialInterval}
-          className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+          className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 relative overflow-hidden"
         >
-          {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-          {isSaving ? "Saving..." : "Save Configuration"}
+          {isSaving ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+          ) : showSuccess ? (
+            <><CheckCircle2 className="w-4 h-4 text-green-300" /> <span className="text-green-50">Saved Successfully!</span></>
+          ) : (
+            "Save Configuration"
+          )}
         </button>
       </div>
     </div>
