@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { Room, createLocalScreenTracks } from "livekit-client";
 import "./App.css";
 
 interface ActiveApp {
@@ -28,6 +29,7 @@ function App() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspaceName, setActiveWorkspaceName] = useState("");
   const [screenshotInterval, setScreenshotInterval] = useState(60);
+  const [livekitRoom, setLivekitRoom] = useState<Room | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +109,40 @@ function App() {
     const interval = setInterval(fetchActiveWindow, 5000);
     return () => clearInterval(interval);
   }, [isAuthenticated, deviceId, tenantId]);
+
+  // LiveKit CCTV Stream
+  useEffect(() => {
+    if (!isAuthenticated || !tenantId) return;
+
+    let room: Room;
+    const startLiveCCTV = async () => {
+      try {
+        const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true`);
+        const data = await res.json();
+        if (data.token && data.url) {
+          room = new Room();
+          await room.connect(data.url, data.token);
+          setLivekitRoom(room);
+
+          // Get screen track (will prompt user)
+          const tracks = await createLocalScreenTracks({ audio: false, video: true });
+          for (const track of tracks) {
+            await room.localParticipant.publishTrack(track);
+          }
+        }
+      } catch (err) {
+        console.error("LiveKit connection failed:", err);
+      }
+    };
+
+    startLiveCCTV();
+
+    return () => {
+      if (room) {
+        room.disconnect();
+      }
+    };
+  }, [isAuthenticated, tenantId]);
 
   useEffect(() => {
     if (!isAuthenticated || screenshotInterval === 0) return;
