@@ -29,7 +29,6 @@ function App() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspaceName, setActiveWorkspaceName] = useState("");
   const [screenshotInterval, setScreenshotInterval] = useState(60);
-  const [livekitRoom, setLivekitRoom] = useState<Room | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +121,6 @@ function App() {
         if (data.token && data.url) {
           room = new Room();
           await room.connect(data.url, data.token);
-          setLivekitRoom(room);
 
           // Get screen track (will prompt user)
           const tracks = await createLocalScreenTracks({ audio: false, video: true });
