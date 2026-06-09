@@ -2,6 +2,16 @@ import { AccessToken } from 'livekit-server-sdk';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: corsHeaders });
+}
+
 export async function GET(req: Request) {
   try {
     const session = await getSession();
@@ -10,11 +20,8 @@ export async function GET(req: Request) {
     const room = url.searchParams.get('room');
     const isAgent = url.searchParams.get('isAgent') === 'true';
 
-    // If an admin is requesting it, ensure they are logged in.
-    // If an agent is requesting it, it should pass a device token ideally.
-    // For MVP, we use the room name which could be the tenantId.
     if (!room) {
-      return NextResponse.json({ error: 'Missing "room" query parameter' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing "room" query parameter' }, { status: 400, headers: corsHeaders });
     }
 
     const apiKey = process.env.LIVEKIT_API_KEY;
@@ -22,10 +29,9 @@ export async function GET(req: Request) {
     const wsUrl = process.env.LIVEKIT_URL;
 
     if (!apiKey || !apiSecret || !wsUrl) {
-      return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+      return NextResponse.json({ error: 'Server misconfigured' }, { status: 500, headers: corsHeaders });
     }
 
-    // Identity is random for subscribers, or deviceId for agents.
     const identity = isAgent ? `agent-${Math.random().toString(36).substring(7)}` : `admin-${session?.id || Math.random().toString(36).substring(7)}`;
 
     const at = new AccessToken(apiKey, apiSecret, {
@@ -39,9 +45,9 @@ export async function GET(req: Request) {
       canSubscribe: !isAgent,
     });
 
-    return NextResponse.json({ token: await at.toJwt(), url: wsUrl });
+    return NextResponse.json({ token: await at.toJwt(), url: wsUrl }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error generating token:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500, headers: corsHeaders });
   }
 }
