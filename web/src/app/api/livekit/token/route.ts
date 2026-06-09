@@ -26,7 +26,7 @@ export async function GET(req: Request) {
     }
 
     // Identity is random for subscribers, or deviceId for agents.
-    const identity = isAgent ? `agent-${Math.random().toString(36).substring(7)}` : `admin-${session?.user?.id || Math.random().toString(36).substring(7)}`;
+    const identity = isAgent ? `agent-${Math.random().toString(36).substring(7)}` : `admin-${session?.id || Math.random().toString(36).substring(7)}`;
 
     const at = new AccessToken(apiKey, apiSecret, {
       identity,
