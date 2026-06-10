@@ -72,7 +72,7 @@ function CCTVGrid() {
           <div key={trackRef.participant.identity} className="relative rounded-lg overflow-hidden border border-white/10 bg-black group">
             <VideoTrack trackRef={trackRef as any} className="w-full h-full object-contain" />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              <p className="text-white font-medium">{trackRef.participant.identity.replace('agent-', 'Device ')}</p>
+              <p className="text-white font-medium">{trackRef.participant.name || trackRef.participant.identity.replace('agent-', 'Device ')}</p>
             </div>
           </div>
         ))}

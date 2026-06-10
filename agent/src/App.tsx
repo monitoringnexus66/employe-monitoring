@@ -122,7 +122,7 @@ function App() {
   const startLiveCCTV = async () => {
     if (!isAuthenticated || !tenantId) return;
     try {
-      const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true`);
+      const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true&name=${encodeURIComponent(employeeName)}`);
       const data = await res.json();
       if (data.token && data.url) {
         const room = new Room();

@@ -19,6 +19,7 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const room = url.searchParams.get('room');
     const isAgent = url.searchParams.get('isAgent') === 'true';
+    const name = url.searchParams.get('name') || '';
 
     if (!room) {
       return NextResponse.json({ error: 'Missing "room" query parameter' }, { status: 400, headers: corsHeaders });
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
 
     const at = new AccessToken(apiKey, apiSecret, {
       identity,
+      name,
     });
 
     at.addGrant({
