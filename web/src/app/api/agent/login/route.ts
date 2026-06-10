@@ -15,7 +15,7 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, machineId } = body;
+    const { email, password, machineId, osInfo = "macOS" } = body;
 
     const user = await prisma.user.findUnique({
       where: { email },
@@ -29,8 +29,8 @@ export async function POST(request: Request) {
     // Register this device for the user securely
     const device = await prisma.device.upsert({
       where: { id: machineId },
-      update: { lastPing: new Date(), userId: user.id },
-      create: { id: machineId, userId: user.id, osInfo: "macOS" },
+      update: { lastPing: new Date(), userId: user.id, osInfo },
+      create: { id: machineId, userId: user.id, osInfo },
     });
 
     return NextResponse.json({ 

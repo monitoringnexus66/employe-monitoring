@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Room, createLocalScreenTracks } from "livekit-client";
+import { Room, Track } from "livekit-client";
 import "./App.css";
 
 interface ActiveApp {
@@ -22,6 +22,9 @@ function App() {
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [roomRef, setRoomRef] = useState<Room | null>(null);
+  const [cctvError, setCctvError] = useState("");
 
   const [tenantId, setTenantId] = useState("");
   const [deviceId, setDeviceId] = useState("");
@@ -36,14 +39,20 @@ function App() {
     setLoginError("");
 
     try {
-      const machineId = "device_" + Math.random().toString(36).substr(2, 9);
+      let machineId = localStorage.getItem("machineId");
+      if (!machineId) {
+        machineId = "device_" + Math.random().toString(36).substring(2, 11);
+        localStorage.setItem("machineId", machineId);
+      }
+      
+      const osInfo = navigator.userAgent.includes("Windows") ? "Windows" : navigator.userAgent.includes("Mac") ? "macOS" : navigator.userAgent.includes("Linux") ? "Linux" : "Unknown OS";
       
       const res = await fetch('https://employe-monitoring.vercel.app/api/agent/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, machineId })
+        body: JSON.stringify({ email, password, machineId, osInfo })
       });
       
       const data = await res.json();
@@ -110,37 +119,105 @@ function App() {
   }, [isAuthenticated, deviceId, tenantId]);
 
   // LiveKit CCTV Stream
-  useEffect(() => {
+  const startLiveCCTV = async () => {
     if (!isAuthenticated || !tenantId) return;
+    try {
+      const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true`);
+      const data = await res.json();
+      if (data.token && data.url) {
+        const room = new Room();
+        setRoomRef(room);
+        await room.connect(data.url, data.token);
 
-    let room: Room;
-    const startLiveCCTV = async () => {
-      try {
-        const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true`);
-        const data = await res.json();
-        if (data.token && data.url) {
-          room = new Room();
-          await room.connect(data.url, data.token);
+        try {
+          // Bypassing WebKit getDisplayMedia by creating a custom Canvas stream driven by Rust!
+          // Get the first frame to initialize the exact resolution of the screen
+          const firstScreenshot = await invoke<Screenshot>("take_screenshot");
+          const firstImg = new Image();
+          await new Promise((resolve, reject) => {
+            firstImg.onload = resolve;
+            firstImg.onerror = reject;
+            firstImg.src = firstScreenshot.base64_image;
+          });
 
-          // Get screen track (will prompt user)
-          const tracks = await createLocalScreenTracks({ audio: false, video: true });
-          for (const track of tracks) {
-            await room.localParticipant.publishTrack(track);
-          }
+          // WebKit aggressively freezes any canvas that is 1x1 pixel or transparent!
+          // We MUST make it a reasonable size and opacity: 1, but we can hide it behind the main UI.
+          const canvas = document.createElement("canvas");
+          canvas.width = firstImg.width;
+          canvas.height = firstImg.height;
+          canvas.style.position = "fixed";
+          canvas.style.bottom = "10px";
+          canvas.style.right = "10px";
+          canvas.style.width = "200px";
+          canvas.style.height = "auto";
+          canvas.style.zIndex = "-9999"; // Hidden behind the root UI
+          canvas.style.opacity = "1";
+          canvas.style.pointerEvents = "none";
+          document.body.appendChild(canvas);
+          
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Could not create canvas context");
+          ctx.drawImage(firstImg, 0, 0);
+
+          // Use default captureStream (event-driven) because WebKit often freezes on fixed FPS streams
+          const mediaStream = canvas.captureStream(); 
+          const videoTrack = mediaStream.getVideoTracks()[0];
+
+          await room.localParticipant.publishTrack(videoTrack, { source: Track.Source.ScreenShare });
+          
+          console.log("Started custom Rust-driven screen sharing");
+          setIsBroadcasting(true);
+
+          // Push frames from Rust into the Canvas
+          const loop = async () => {
+            while (room.state === "connected") {
+              try {
+                const screenshot = await invoke<Screenshot>("take_screenshot");
+                const img = new Image();
+                
+                await new Promise((res, rej) => {
+                  img.onload = res;
+                  img.onerror = rej;
+                  img.src = screenshot.base64_image;
+                });
+
+                if (canvas.width !== img.width) canvas.width = img.width;
+                if (canvas.height !== img.height) canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                // Add a tiny pulsating green dot in the corner so you know the video stream itself is live
+                ctx.fillStyle = Date.now() % 1000 < 500 ? "#0f0" : "transparent";
+                ctx.beginPath();
+                ctx.arc(canvas.width - 20, 20, 10, 0, Math.PI * 2);
+                ctx.fill();
+
+              } catch (e) {
+                console.error("Frame dropped:", e);
+              }
+              // Throttle to roughly 2-3 FPS to prevent overloading the native Rust image encoder
+              await new Promise(r => setTimeout(r, 400)); 
+            }
+          };
+          loop();
+
+        } catch (err: any) {
+          setCctvError("SCREEN SHARE ERROR: " + err.message);
         }
-      } catch (err) {
-        console.error("LiveKit connection failed:", err);
+      } else {
+        setCctvError("LIVEKIT TOKEN ERROR: " + JSON.stringify(data));
       }
-    };
+    } catch (err: any) {
+      setCctvError("LIVEKIT API ERROR: " + err.message);
+    }
+  };
 
-    startLiveCCTV();
-
+  useEffect(() => {
     return () => {
-      if (room) {
-        room.disconnect();
+      if (roomRef) {
+        roomRef.disconnect();
       }
     };
-  }, [isAuthenticated, tenantId]);
+  }, [roomRef]);
 
   useEffect(() => {
     if (!isAuthenticated || screenshotInterval === 0) return;
@@ -252,6 +329,25 @@ function App() {
       <div className="status-badge">
         <div className="pulse"></div>
         Tracking Active
+      </div>
+      
+      {cctvError && (
+        <div className="error-msg" style={{ marginTop: "1rem", fontSize: "0.8rem" }}>
+          {cctvError}
+        </div>
+      )}
+
+      <div style={{ marginTop: "1rem" }}>
+        {!isBroadcasting ? (
+          <button onClick={startLiveCCTV} className="btn btn-primary" style={{ width: "100%" }}>
+            🎥 Start CCTV Broadcast
+          </button>
+        ) : (
+          <div className="status-badge" style={{ background: "rgba(0, 255, 0, 0.1)", color: "#0f0", borderColor: "rgba(0, 255, 0, 0.3)" }}>
+            <div className="pulse" style={{ background: "#0f0" }}></div>
+            CCTV Broadcast Active
+          </div>
+        )}
       </div>
       
       <div style={{ marginTop: "2rem" }}>
