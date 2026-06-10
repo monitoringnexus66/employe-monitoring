@@ -3,20 +3,34 @@ import { Activity } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+import Pagination from "@/components/Pagination";
+
 export const dynamic = 'force-dynamic';
 
-export default async function ActivityPage() {
+export default async function ActivityPage({ searchParams }: { searchParams: { page?: string } }) {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const logs = await prisma.activityLog.findMany({
-    where: { tenantId: session.tenantId },
-    orderBy: { timestamp: 'desc' },
-    take: 50,
-    include: {
-      device: { include: { user: true } }
-    }
-  });
+  const page = parseInt(searchParams.page || "1");
+  const take = 50;
+  const skip = (page - 1) * take;
+
+  const [logs, totalCount] = await Promise.all([
+    prisma.activityLog.findMany({
+      where: { tenantId: session.tenantId },
+      orderBy: { timestamp: 'desc' },
+      skip,
+      take,
+      include: {
+        device: { include: { user: true } }
+      }
+    }),
+    prisma.activityLog.count({
+      where: { tenantId: session.tenantId }
+    })
+  ]);
+
+  const totalPages = Math.ceil(totalCount / take);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -64,6 +78,8 @@ export default async function ActivityPage() {
           </table>
         </div>
       </div>
+      
+      <Pagination totalPages={totalPages} currentPage={page} />
     </div>
   );
 }

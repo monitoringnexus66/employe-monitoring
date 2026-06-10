@@ -3,20 +3,34 @@ import { Image as ImageIcon } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
+import Pagination from "@/components/Pagination";
+
 export const dynamic = 'force-dynamic';
 
-export default async function ScreenshotsPage() {
+export default async function ScreenshotsPage({ searchParams }: { searchParams: { page?: string } }) {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const screenshots = await prisma.screenshot.findMany({
-    where: { tenantId: session.tenantId },
-    orderBy: { timestamp: 'desc' },
-    take: 24,
-    include: {
-      device: { include: { user: true } }
-    }
-  });
+  const page = parseInt(searchParams.page || "1");
+  const take = 24;
+  const skip = (page - 1) * take;
+
+  const [screenshots, totalCount] = await Promise.all([
+    prisma.screenshot.findMany({
+      where: { tenantId: session.tenantId },
+      orderBy: { timestamp: 'desc' },
+      skip,
+      take,
+      include: {
+        device: { include: { user: true } }
+      }
+    }),
+    prisma.screenshot.count({
+      where: { tenantId: session.tenantId }
+    })
+  ]);
+
+  const totalPages = Math.ceil(totalCount / take);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -59,6 +73,8 @@ export default async function ScreenshotsPage() {
           </div>
         )}
       </div>
+
+      <Pagination totalPages={totalPages} currentPage={page} />
     </div>
   );
 }
