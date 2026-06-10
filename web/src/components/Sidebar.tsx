@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video } from "lucide-react";
 
 export function Sidebar({ role }: { role: string }) {
   const pathname = usePathname();
@@ -20,6 +20,7 @@ export function Sidebar({ role }: { role: string }) {
       { name: "Employees", href: "/dashboard/employees", icon: Users },
       { name: "Activity", href: "/dashboard/activity", icon: Activity },
       { name: "Screenshots", href: "/dashboard/screenshots", icon: ImageIcon },
+      { name: "Live CCTV", href: "/dashboard/live", icon: Video },
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ];
   }

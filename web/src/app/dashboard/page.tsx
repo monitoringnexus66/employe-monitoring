@@ -39,8 +39,8 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold tracking-tight text-white">Dashboard Overview</h1>
           <p className="text-muted-foreground mt-1">Monitor your team's real-time productivity and activity.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-sm text-muted-foreground ml-2">
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground hidden sm:block">
             <span className="text-green-400 font-medium flex items-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -49,6 +49,10 @@ export default async function DashboardPage() {
               Receiving Live Data
             </span>
           </div>
+          <a href="/dashboard/live" className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shadow-lg shadow-blue-500/20">
+            <Monitor className="w-4 h-4" />
+            View Live CCTV
+          </a>
         </div>
       </div>
 
