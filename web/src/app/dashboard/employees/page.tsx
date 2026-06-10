@@ -48,15 +48,9 @@ export default async function EmployeesPage() {
               
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex gap-4">
-                  {user.devices.map((device) => (
-                    <div key={device.id} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 flex items-center gap-3">
-                      <Monitor className="w-4 h-4 text-blue-400" />
-                      <div>
-                        <p className="text-xs font-medium text-white">Device: {device.id.substring(0, 8)}</p>
-                        <p className="text-xs text-muted-foreground">{device.osInfo}</p>
-                      </div>
-                    </div>
-                  ))}
+                  <p className="text-sm text-muted-foreground hidden sm:block">
+                    {user.devices.length} Connected {user.devices.length === 1 ? 'Device' : 'Devices'}
+                  </p>
                 </div>
                 <div className="hidden md:flex p-2 rounded-full bg-white/5 group-hover:bg-blue-500/20 transition-colors">
                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-blue-400 transition-colors" />
