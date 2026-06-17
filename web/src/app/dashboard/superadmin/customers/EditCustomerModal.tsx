@@ -54,17 +54,18 @@ export default function EditCustomerModal({ tenant, packages }: { tenant: any, p
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-secondary/90 border border-white/10 p-6 rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-secondary/90 border border-white/10 p-6 rounded-2xl w-full max-w-2xl shadow-2xl relative flex flex-col max-h-full">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-muted-foreground transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-muted-foreground transition-colors z-10"
             >
               <X className="w-5 h-5" />
             </button>
-            <h2 className="text-xl font-bold text-white mb-6">Edit Customer: {tenant.name}</h2>
+            <h2 className="text-xl font-bold text-white mb-6 flex-shrink-0">Edit Customer: {tenant.name}</h2>
             
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="overflow-y-auto pr-2 pb-2 -mr-2">
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Customer ID</label>
                 <input
@@ -152,7 +153,8 @@ export default function EditCustomerModal({ tenant, packages }: { tenant: any, p
                   {loading ? "Saving..." : "Save Customer Details"}
                 </button>
               </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
