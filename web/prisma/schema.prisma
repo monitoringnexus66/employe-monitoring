@@ -24,11 +24,32 @@ model User {
   devices      Device[]
 }
 
+model Package {
+  id           String   @id @default(cuid())
+  name         String
+  maxAccounts  Int
+  monthlyPrice Float
+  createdAt    DateTime @default(now())
+
+  tenants      Tenant[]
+}
+
 model Tenant {
   id                 String   @id @default(cuid())
   name               String
   subscriptionStatus String   @default("active")
   createdAt          DateTime @default(now())
+
+  // Customer Management Fields
+  customerId         String?  @unique
+  primaryContactName String?
+  primaryContactEmail String?
+  primaryContactPhone String?
+  renewalDate        DateTime?
+
+  // Package Relation
+  packageId          String?
+  package            Package? @relation(fields: [packageId], references: [id])
 
   memberships        TenantMembership[]
   activityLogs       ActivityLog[]
