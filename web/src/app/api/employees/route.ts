@@ -9,6 +9,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: session.tenantId },
+      include: { package: true, _count: { select: { memberships: true } } }
+    });
+
+    if (!tenant?.package) {
+      return NextResponse.json({ error: "No subscription package assigned. Contact support." }, { status: 403 });
+    }
+
+    if (tenant._count.memberships >= tenant.package.maxAccounts) {
+      return NextResponse.json({ 
+        error: `Package limit reached. You can only have up to ${tenant.package.maxAccounts} employees on the ${tenant.package.name} plan.` 
+      }, { status: 403 });
+    }
+
     const body = await request.json();
     const { name, email, password } = body;
     const tenantId = session.tenantId;

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video } from "lucide-react";
+import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video, PackageOpen, Building2 } from "lucide-react";
 
 export function Sidebar({ role }: { role: string }) {
   const pathname = usePathname();
@@ -12,6 +12,8 @@ export function Sidebar({ role }: { role: string }) {
   if (role === "SUPERADMIN") {
     navItems = [
       { name: "Super Admin", href: "/dashboard/superadmin", icon: ShieldCheck },
+      { name: "Packages", href: "/dashboard/superadmin/packages", icon: PackageOpen },
+      { name: "Customers", href: "/dashboard/superadmin/customers", icon: Building2 },
       { name: "Settings", href: "/dashboard/settings", icon: Settings }
     ];
   } else {
