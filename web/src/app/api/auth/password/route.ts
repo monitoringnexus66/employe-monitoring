@@ -5,7 +5,7 @@ import { getSession } from '@/lib/auth';
 export async function POST(request: Request) {
   try {
     const session = await getSession();
-    if (!session || !session.userId) {
+    if (!session || !session.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.userId }
+      where: { id: session.id }
     });
 
     if (!user) {
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     // Update password
     await prisma.user.update({
-      where: { id: session.userId },
+      where: { id: session.id },
       data: { passwordHash: newPassword }
     });
 
