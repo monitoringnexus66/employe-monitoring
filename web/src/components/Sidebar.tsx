@@ -14,15 +14,22 @@ export function Sidebar({ role }: { role: string }) {
       { name: "Super Admin", href: "/dashboard/superadmin", icon: ShieldCheck },
       { name: "Packages", href: "/dashboard/superadmin/packages", icon: PackageOpen },
       { name: "Customers", href: "/dashboard/superadmin/customers", icon: Building2 },
-      { name: "Settings", href: "/dashboard/settings", icon: Settings }
+      { name: "Settings", href: "/dashboard/settings", icon: Settings },
+      { name: "Security", href: "/dashboard/security", icon: ShieldCheck }
     ];
-  } else {
+  } else if (role === "ADMIN") {
     navItems = [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "Employees", href: "/dashboard/employees", icon: Users },
       { name: "Screenshots", href: "/dashboard/screenshots", icon: ImageIcon },
       { name: "Live CCTV", href: "/dashboard/live", icon: Video },
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
+      { name: "Security", href: "/dashboard/security", icon: ShieldCheck },
+    ];
+  } else {
+    // Regular EMPLOYEE
+    navItems = [
+      { name: "Security", href: "/dashboard/security", icon: ShieldCheck },
     ];
   }
 
