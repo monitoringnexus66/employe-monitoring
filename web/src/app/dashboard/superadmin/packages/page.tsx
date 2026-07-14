@@ -3,6 +3,7 @@ import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { PackageOpen, Plus } from "lucide-react";
 import CreatePackageModal from "./CreatePackageModal";
+import EditPackageModal from "./EditPackageModal";
 
 export const dynamic = 'force-dynamic';
 
@@ -56,7 +57,7 @@ export default async function PackagesPage() {
                   </td>
                   <td className="p-4 text-sm text-gray-400">{new Date(pkg.createdAt).toLocaleDateString()}</td>
                   <td className="p-4 text-sm">
-                    <button className="text-blue-400 hover:underline">Edit</button>
+                    <EditPackageModal pkg={pkg} />
                   </td>
                 </tr>
               ))}
