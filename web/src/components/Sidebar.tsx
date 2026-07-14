@@ -20,7 +20,6 @@ export function Sidebar({ role }: { role: string }) {
     navItems = [
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "Employees", href: "/dashboard/employees", icon: Users },
-      { name: "Activity", href: "/dashboard/activity", icon: Activity },
       { name: "Screenshots", href: "/dashboard/screenshots", icon: ImageIcon },
       { name: "Live CCTV", href: "/dashboard/live", icon: Video },
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
