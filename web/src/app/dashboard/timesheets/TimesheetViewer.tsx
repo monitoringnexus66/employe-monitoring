@@ -5,7 +5,17 @@ import { ChevronLeft, ChevronRight, Loader2, User, Download, BrainCircuit, FileT
 import ReactMarkdown from "react-markdown";
 import { exportToCSV, exportToPDF } from "@/lib/exportUtils";
 
-export default function TimesheetViewer({ employees, tenantId, appCategories }: { employees: any[], tenantId: string, appCategories: any[] }) {
+export default function TimesheetViewer({ 
+  employees, 
+  tenantId, 
+  appCategories,
+  employeeAppCategories
+}: { 
+  employees: any[], 
+  tenantId: string, 
+  appCategories: any[],
+  employeeAppCategories: any[]
+}) {
   const [selectedUserId, setSelectedUserId] = useState<string>(employees[0]?.id || "");
   const [date, setDate] = useState<Date>(new Date());
   const [logs, setLogs] = useState<any[]>([]);
@@ -114,7 +124,11 @@ export default function TimesheetViewer({ employees, tenantId, appCategories }: 
           if (log.isIdle) {
             bgColor = "bg-yellow-500";
           } else {
-            const cat = appCategories.find(c => c.appName === log.appName)?.category || "NEUTRAL";
+            // First check for employee-specific category, then fallback to global
+            const empCat = employeeAppCategories?.find(c => c.appName === log.appName && c.userId === selectedUserId);
+            const globalCat = appCategories?.find(c => c.appName === log.appName);
+            const cat = empCat?.category || globalCat?.category || "NEUTRAL";
+            
             if (cat === "PRODUCTIVE") bgColor = "bg-green-500";
             if (cat === "UNPRODUCTIVE") bgColor = "bg-red-500";
             if (cat === "NEUTRAL") bgColor = "bg-gray-400";

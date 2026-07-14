@@ -31,6 +31,10 @@ export default async function TimesheetsPage() {
     where: { tenantId }
   });
 
+  const employeeAppCategories = await prisma.employeeAppCategory.findMany({
+    where: { tenantId }
+  });
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
@@ -46,6 +50,7 @@ export default async function TimesheetsPage() {
         employees={employees} 
         tenantId={tenantId}
         appCategories={appCategories}
+        employeeAppCategories={employeeAppCategories}
       />
     </div>
   );

@@ -7,6 +7,7 @@ import ScreenshotGallery from "./ScreenshotGallery";
 import CaptureSettings from "./CaptureSettings";
 import DatePickerFilter from "./DatePickerFilter";
 import DeleteEmployeeButton from "./DeleteEmployeeButton";
+import JobDescriptionEditor from "./JobDescriptionEditor";
 
 export const dynamic = 'force-dynamic';
 
@@ -183,6 +184,8 @@ export default async function EmployeeProfilePage({ params, searchParams }: { pa
               )}
             </div>
           </div>
+
+          <JobDescriptionEditor userId={user.id} initialJobDescription={user.memberships[0].jobDescription} />
 
           <CaptureSettings membershipId={user.memberships[0].id} initialInterval={user.memberships[0].screenshotInterval} />
         </div>
