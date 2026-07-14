@@ -13,6 +13,8 @@ export default function TimesheetViewer({ employees, tenantId, appCategories }: 
   
   const [insight, setInsight] = useState<string | null>(null);
   const [loadingInsight, setLoadingInsight] = useState(false);
+  const [insightStartDate, setInsightStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [insightEndDate, setInsightEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [showExportMenu, setShowExportMenu] = useState(false);
 
   useEffect(() => {
@@ -50,15 +52,18 @@ export default function TimesheetViewer({ employees, tenantId, appCategories }: 
   };
 
   const generateInsight = async () => {
-    if (!selectedUserId || logs.length === 0) return;
+    if (!selectedUserId) return;
     setLoadingInsight(true);
     setInsight(null);
     try {
-      const dateStr = date.toISOString().split('T')[0];
       const res = await fetch("/api/ai/insights", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: selectedUserId, date: dateStr }),
+        body: JSON.stringify({ 
+          userId: selectedUserId, 
+          startDate: insightStartDate, 
+          endDate: insightEndDate 
+        }),
       });
       const data = await res.json();
       if (res.ok && data.insight) {
@@ -205,10 +210,28 @@ export default function TimesheetViewer({ employees, tenantId, appCategories }: 
       </div>
 
       {/* AI Actions */}
-      <div className="flex justify-end mb-8">
+      <div className="flex flex-col md:flex-row justify-end items-end md:items-center gap-4 mb-8">
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-400">From:</label>
+          <input 
+            type="date" 
+            value={insightStartDate}
+            onChange={(e) => setInsightStartDate(e.target.value)}
+            className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500/50"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-400">To:</label>
+          <input 
+            type="date" 
+            value={insightEndDate}
+            onChange={(e) => setInsightEndDate(e.target.value)}
+            className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500/50"
+          />
+        </div>
         <button 
           onClick={generateInsight}
-          disabled={loadingInsight || logs.length === 0}
+          disabled={loadingInsight || !insightStartDate || !insightEndDate}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium text-sm transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
         >
           {loadingInsight ? <Loader2 className="w-4 h-4 animate-spin" /> : <BrainCircuit className="w-4 h-4" />}

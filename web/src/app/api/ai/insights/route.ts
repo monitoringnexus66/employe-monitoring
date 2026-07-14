@@ -15,15 +15,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "DEEPSEEK_API_KEY not configured." }, { status: 500 });
     }
 
-    const { userId, date } = await req.json();
+    const { userId, startDate, endDate } = await req.json();
 
-    if (!userId || !date) {
+    if (!userId || !startDate || !endDate) {
       return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
     }
 
-    const targetDate = new Date(date);
-    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+    
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
 
     // Get the device for this user
     const device = await prisma.device.findFirst({
@@ -39,15 +41,15 @@ export async function POST(req: Request) {
         tenantId: session.tenantId,
         deviceId: device.id,
         timestamp: {
-          gte: startOfDay,
-          lt: endOfDay
+          gte: start,
+          lte: end
         }
       },
       orderBy: { timestamp: 'asc' }
     });
 
     if (logs.length === 0) {
-      return NextResponse.json({ insight: "No activity data available for this day to analyze." });
+      return NextResponse.json({ insight: "No activity data available for this period to analyze." });
     }
 
     // Compress logs to save tokens
@@ -57,7 +59,7 @@ export async function POST(req: Request) {
       appUsage[log.appName] += log.durationSeconds;
     });
 
-    let summaryText = "Application Usage Summary (in seconds):\n";
+    let summaryText = `Application Usage Summary (in seconds) for ${startDate} to ${endDate}:\n`;
     for (const [app, duration] of Object.entries(appUsage)) {
       summaryText += `- ${app}: ${duration}s\n`;
     }
@@ -71,7 +73,7 @@ export async function POST(req: Request) {
       messages: [
         { 
           role: "system", 
-          content: "You are an expert HR and Productivity analyst. You will be provided with an employee's application usage summary for a single day. Analyze their focus, identify potential distractions, and write a concise, professional 2-3 paragraph performance insight in Markdown format. Be encouraging but objective." 
+          content: "You are an expert HR and Productivity analyst. You will be provided with an employee's application usage summary over a specific date range. Analyze their focus, identify potential distractions, and write a concise, professional 2-3 paragraph performance insight in Markdown format. Be encouraging but objective." 
         },
         { role: "user", content: summaryText }
       ],
