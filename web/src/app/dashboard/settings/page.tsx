@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Save, Settings as SettingsIcon, Shield, Building2, CreditCard, Download, ExternalLink, Loader2, Info } from "lucide-react";
-import { toast } from "sonner";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState({ message: "", type: "" });
   const [tenant, setTenant] = useState<any>(null);
 
   // Form State
@@ -41,7 +41,7 @@ export default function SettingsPage() {
         });
       }
     } catch (error) {
-      toast.error("Failed to load settings");
+      setSaveStatus({ message: "Failed to load settings", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -58,10 +58,13 @@ export default function SettingsPage() {
     }
     
     setFormData(prev => ({ ...prev, [name]: finalValue }));
+    // Clear status message when user types
+    if (saveStatus.message) setSaveStatus({ message: "", type: "" });
   };
 
   const handleSave = async () => {
     setSaving(true);
+    setSaveStatus({ message: "", type: "" });
     try {
       const res = await fetch("/api/tenant/settings", {
         method: "PATCH",
@@ -70,14 +73,14 @@ export default function SettingsPage() {
       });
 
       if (res.ok) {
-        toast.success("Settings saved successfully");
+        setSaveStatus({ message: "Settings saved successfully", type: "success" });
         const data = await res.json();
         setTenant(data.tenant);
       } else {
-        toast.error("Failed to save settings");
+        setSaveStatus({ message: "Failed to save settings", type: "error" });
       }
     } catch (error) {
-      toast.error("An error occurred while saving");
+      setSaveStatus({ message: "An error occurred while saving", type: "error" });
     } finally {
       setSaving(false);
     }
@@ -100,14 +103,21 @@ export default function SettingsPage() {
           </h1>
           <p className="text-muted-foreground mt-1">Manage your workspace configuration and tracking rules.</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
-        >
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+        <div className="flex items-center gap-4">
+          {saveStatus.message && (
+            <span className={`text-sm font-medium ${saveStatus.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+              {saveStatus.message}
+            </span>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
