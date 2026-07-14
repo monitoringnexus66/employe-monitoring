@@ -36,6 +36,12 @@ model Package {
   tenants      Tenant[]
 }
 
+model SystemSettings {
+  id         String @id @default("global")
+  appName    String @default("NexusTrack")
+  logoBase64 String?
+}
+
 model Tenant {
   id                 String   @id @default(cuid())
   name               String
@@ -54,6 +60,7 @@ model Tenant {
   idleTimeout               Int      @default(5)
   blurScreenshots           Boolean  @default(false)
   timezone                  String   @default("UTC")
+  logoBase64                String?
 
   // Package Relation
   packageId          String?

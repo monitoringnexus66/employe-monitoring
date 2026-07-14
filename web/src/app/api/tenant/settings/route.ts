@@ -49,6 +49,7 @@ export async function PATCH(req: Request) {
     if (body.defaultScreenshotInterval !== undefined) updateData.defaultScreenshotInterval = body.defaultScreenshotInterval;
     if (body.idleTimeout !== undefined) updateData.idleTimeout = body.idleTimeout;
     if (body.blurScreenshots !== undefined) updateData.blurScreenshots = body.blurScreenshots;
+    if (body.logoBase64 !== undefined) updateData.logoBase64 = body.logoBase64;
 
     const updatedTenant = await prisma.tenant.update({
       where: { id: session.tenantId },

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
 
@@ -8,7 +8,19 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [appName, setAppName] = useState("NexusTrack Admin");
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch("/api/superadmin/branding")
+      .then(res => res.json())
+      .then(data => {
+        if (data.appName) setAppName(`${data.appName} Admin`);
+        if (data.logoBase64) setLogoBase64(data.logoBase64);
+      })
+      .catch(console.error);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,11 +50,15 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-black bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
       <div className="w-full max-w-md p-8 bg-[#0f1115]/90 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-500">
         <div className="flex justify-center mb-6">
-          <div className="p-3 bg-blue-600/20 rounded-full border border-blue-500/30">
-             <ShieldAlert className="w-8 h-8 text-blue-500" />
-          </div>
+          {logoBase64 ? (
+            <img src={logoBase64} alt="Logo" className="w-16 h-16 rounded-xl object-contain border border-white/10 p-2 bg-white/5" />
+          ) : (
+            <div className="p-3 bg-blue-600/20 rounded-full border border-blue-500/30">
+               <ShieldAlert className="w-8 h-8 text-blue-500" />
+            </div>
+          )}
         </div>
-        <h1 className="text-2xl font-bold text-white text-center mb-2">NexusTrack Admin</h1>
+        <h1 className="text-2xl font-bold text-white text-center mb-2">{appName}</h1>
         <p className="text-center text-muted-foreground text-sm mb-6">Sign in to manage your workspace</p>
         
         {error && <div className="p-3 mb-4 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg text-center">{error}</div>}

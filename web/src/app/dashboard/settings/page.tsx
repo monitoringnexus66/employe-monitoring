@@ -10,7 +10,7 @@ export default function SettingsPage() {
   const [tenant, setTenant] = useState<any>(null);
 
   // Form State
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     name: "",
     primaryContactName: "",
     primaryContactEmail: "",
@@ -18,6 +18,7 @@ export default function SettingsPage() {
     defaultScreenshotInterval: 300,
     idleTimeout: 5,
     blurScreenshots: false,
+    logoBase64: null as string | null,
   });
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function SettingsPage() {
           defaultScreenshotInterval: data.tenant.defaultScreenshotInterval || 300,
           idleTimeout: data.tenant.idleTimeout || 5,
           blurScreenshots: data.tenant.blurScreenshots || false,
+          logoBase64: data.tenant.logoBase64 || null,
         });
       }
     } catch (error) {
@@ -45,6 +47,23 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setSaveStatus({ message: "File is too large. Max size is 2MB.", type: "error" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setFormData(prev => ({ ...prev, logoBase64: event.target?.result as string }));
+      setSaveStatus({ message: "", type: "" });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -58,7 +77,6 @@ export default function SettingsPage() {
     }
     
     setFormData(prev => ({ ...prev, [name]: finalValue }));
-    // Clear status message when user types
     if (saveStatus.message) setSaveStatus({ message: "", type: "" });
   };
 
@@ -184,6 +202,41 @@ export default function SettingsPage() {
               <h2 className="text-xl font-semibold text-white">Workspace Profile</h2>
             </div>
             
+            {/* Company Branding Logo Upload */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-300 mb-2">Company Logo (Optional)</label>
+              <div className="flex items-center gap-6">
+                {formData.logoBase64 ? (
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center p-2">
+                      <img src={formData.logoBase64} alt="Company Logo" className="max-w-full max-h-full object-contain" />
+                    </div>
+                    <button
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, logoBase64: null }));
+                        if (saveStatus.message) setSaveStatus({ message: "", type: "" });
+                      }}
+                      className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-white/10 rounded-lg cursor-pointer bg-black/30 hover:bg-black/50 transition-colors">
+                    <div className="flex flex-col items-center justify-center">
+                      <svg className="w-6 h-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                      <span className="text-[10px] text-gray-500 uppercase font-semibold">Upload</span>
+                    </div>
+                    <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                  </label>
+                )}
+                <div className="text-sm text-muted-foreground flex-1">
+                  <p>Upload your company logo to display it on your employee's dashboard and exported reports.</p>
+                  <p className="text-xs mt-1">Recommended size: 256x256px. Max size: 2MB.</p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300">Company Name</label>
