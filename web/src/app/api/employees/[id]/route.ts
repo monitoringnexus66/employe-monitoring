@@ -28,7 +28,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     // Optional: Do not let admin delete themselves unless they are doing something specific,
     // but typically we can just block it.
-    if (userId === session.userId) {
+    if (userId === session.id) {
       return NextResponse.json({ error: "You cannot remove yourself" }, { status: 400 });
     }
 
