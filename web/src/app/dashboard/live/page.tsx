@@ -12,6 +12,9 @@ export default async function LiveCCTVPage() {
   if (session.role === "EMPLOYEE") {
     redirect("/dashboard/security");
   }
+  if (!session.hasCCTV) {
+    redirect("/dashboard");
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

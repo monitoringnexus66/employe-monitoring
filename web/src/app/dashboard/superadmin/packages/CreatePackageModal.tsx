@@ -18,6 +18,7 @@ export default function CreatePackageModal() {
       name: formData.get("name"),
       maxAccounts: parseInt(formData.get("maxAccounts") as string),
       monthlyPrice: parseFloat(formData.get("monthlyPrice") as string),
+      hasCCTV: formData.get("hasCCTV") === "on",
     };
 
     try {
@@ -94,6 +95,18 @@ export default function CreatePackageModal() {
                   placeholder="e.g. 49.99"
                   className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
                 />
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="hasCCTV"
+                  name="hasCCTV"
+                  className="w-4 h-4 rounded bg-black/50 border-white/20 text-blue-500 focus:ring-blue-500"
+                />
+                <label htmlFor="hasCCTV" className="text-sm font-medium text-white cursor-pointer">
+                  Includes Live CCTV Broadcast
+                  <p className="text-xs text-blue-300 font-normal mt-0.5">Allow workspaces in this package to view live desktop streams.</p>
+                </label>
               </div>
               <button
                 type="submit"

@@ -33,7 +33,7 @@ export async function getSession() {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    include: { memberships: { include: { tenant: true } } }
+    include: { memberships: { include: { tenant: { include: { package: true } } } } }
   });
   
   if (!user) return null;
@@ -46,6 +46,7 @@ export async function getSession() {
     ...user,
     role: user.isSuperAdmin ? "SUPERADMIN" : (activeMembership?.role || "EMPLOYEE"),
     tenantId: activeTenantId,
-    activeMembership
+    activeMembership,
+    hasCCTV: activeMembership?.tenant?.package?.hasCCTV ?? false,
   };
 }

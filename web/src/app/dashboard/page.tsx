@@ -53,10 +53,12 @@ export default async function DashboardPage() {
               Receiving Live Data
             </span>
           </div>
-          <a href="/dashboard/live" className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shadow-lg shadow-blue-500/20">
-            <Monitor className="w-4 h-4" />
-            View Live CCTV
-          </a>
+          {session.hasCCTV && (
+            <a href="/dashboard/live" className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shadow-lg shadow-blue-500/20">
+              <Monitor className="w-4 h-4" />
+              View Live CCTV
+            </a>
+          )}
         </div>
       </div>
 

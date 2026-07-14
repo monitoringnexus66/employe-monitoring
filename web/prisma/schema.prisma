@@ -29,6 +29,7 @@ model Package {
   name         String
   maxAccounts  Int
   monthlyPrice Float
+  hasCCTV      Boolean  @default(false)
   createdAt    DateTime @default(now())
 
   tenants      Tenant[]

@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { name, maxAccounts, monthlyPrice } = await req.json();
+    const { name, maxAccounts, monthlyPrice, hasCCTV } = await req.json();
 
     if (!name || isNaN(maxAccounts) || isNaN(monthlyPrice)) {
       return NextResponse.json({ error: "Invalid data" }, { status: 400 });
@@ -18,8 +18,9 @@ export async function POST(req: Request) {
     const pkg = await prisma.package.create({
       data: {
         name,
-        maxAccounts,
-        monthlyPrice,
+        maxAccounts: parseInt(maxAccounts),
+        monthlyPrice: parseFloat(monthlyPrice),
+        hasCCTV: !!hasCCTV,
       },
     });
 

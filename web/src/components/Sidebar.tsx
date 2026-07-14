@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video, PackageOpen, Building2 } from "lucide-react";
 
-export function Sidebar({ role }: { role: string }) {
+export function Sidebar({ role, hasCCTV }: { role: string, hasCCTV?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -22,7 +22,7 @@ export function Sidebar({ role }: { role: string }) {
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "Employees", href: "/dashboard/employees", icon: Users },
       { name: "Screenshots", href: "/dashboard/screenshots", icon: ImageIcon },
-      { name: "Live CCTV", href: "/dashboard/live", icon: Video },
+      ...(hasCCTV ? [{ name: "Live CCTV", href: "/dashboard/live", icon: Video }] : []),
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
       { name: "Security", href: "/dashboard/security", icon: ShieldCheck },
     ];

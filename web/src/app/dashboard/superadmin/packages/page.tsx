@@ -36,6 +36,7 @@ export default async function PackagesPage() {
                 <th className="p-4 font-medium text-muted-foreground text-sm">Package Name</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Max Accounts</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Monthly Price</th>
+                <th className="p-4 font-medium text-muted-foreground text-sm">Features</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Created Date</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Actions</th>
               </tr>
@@ -46,6 +47,13 @@ export default async function PackagesPage() {
                   <td className="p-4 text-sm font-medium text-white">{pkg.name}</td>
                   <td className="p-4 text-sm text-blue-400 font-medium">{pkg.maxAccounts}</td>
                   <td className="p-4 text-sm text-green-400 font-medium">${pkg.monthlyPrice}</td>
+                  <td className="p-4 text-sm">
+                    {pkg.hasCCTV ? (
+                      <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-medium rounded-full border border-green-500/30">Live CCTV</span>
+                    ) : (
+                      <span className="text-muted-foreground text-xs font-medium">—</span>
+                    )}
+                  </td>
                   <td className="p-4 text-sm text-gray-400">{new Date(pkg.createdAt).toLocaleDateString()}</td>
                   <td className="p-4 text-sm">
                     <button className="text-blue-400 hover:underline">Edit</button>
