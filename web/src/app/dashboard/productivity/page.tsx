@@ -32,6 +32,11 @@ export default async function ProductivityPage() {
     where: { tenantId: session.tenantId },
   });
 
+  const employees = await prisma.user.findMany({
+    where: { memberships: { some: { tenantId: session.tenantId } } },
+    select: { id: true, name: true }
+  });
+
   // Merge the data
   const apps = logs.map(log => {
     const existingCategory = categories.find(c => c.appName === log.appName);
@@ -89,7 +94,7 @@ export default async function ProductivityPage() {
         </div>
       </div>
 
-      <CategoryManager initialApps={apps} />
+      <CategoryManager initialApps={apps} employees={employees} />
     </div>
   );
 }

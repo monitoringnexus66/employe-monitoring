@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Loader2 } from "lucide-react";
 
 type AppData = {
   appName: string;
@@ -9,20 +9,68 @@ type AppData = {
   category: "PRODUCTIVE" | "UNPRODUCTIVE" | "NEUTRAL";
 };
 
-export default function CategoryManager({ initialApps }: { initialApps: AppData[] }) {
+export default function CategoryManager({ 
+  initialApps, 
+  employees 
+}: { 
+  initialApps: AppData[], 
+  employees: {id: string, name: string}[] 
+}) {
   const [apps, setApps] = useState<AppData[]>(initialApps);
   const [search, setSearch] = useState("");
   const [loadingApp, setLoadingApp] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string>("global");
+  const [fetchingOverrides, setFetchingOverrides] = useState(false);
+
+  useEffect(() => {
+    if (selectedUserId === "global") {
+      setApps(initialApps);
+      return;
+    }
+
+    const fetchOverrides = async () => {
+      setFetchingOverrides(true);
+      try {
+        const res = await fetch(`/api/productivity/employee-overrides?userId=${selectedUserId}`);
+        if (res.ok) {
+          const overrides = await res.json();
+          // Merge overrides with initial global apps
+          const mergedApps = initialApps.map(app => {
+            const override = overrides.find((o: any) => o.appName === app.appName);
+            return {
+              ...app,
+              category: override ? override.category : app.category
+            };
+          });
+          setApps(mergedApps);
+        }
+      } catch (error) {
+        console.error("Error fetching overrides", error);
+      } finally {
+        setFetchingOverrides(false);
+      }
+    };
+
+    fetchOverrides();
+  }, [selectedUserId, initialApps]);
 
   const filteredApps = apps.filter(app => app.appName.toLowerCase().includes(search.toLowerCase()));
 
   const handleCategoryChange = async (appName: string, newCategory: string) => {
     setLoadingApp(appName);
     try {
-      const res = await fetch("/api/productivity", {
+      const endpoint = selectedUserId === "global" 
+        ? "/api/productivity" 
+        : "/api/productivity/employee-overrides";
+        
+      const payload = selectedUserId === "global"
+        ? { appName, category: newCategory }
+        : { userId: selectedUserId, appName, category: newCategory };
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appName, category: newCategory }),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -43,17 +91,36 @@ export default function CategoryManager({ initialApps }: { initialApps: AppData[
 
   return (
     <div className="glass-card rounded-xl overflow-hidden border border-white/5">
-      <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/5">
-        <h2 className="text-lg font-semibold text-white">Application Categories</h2>
-        <div className="relative w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search applications..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-black/50 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500"
-          />
+      <div className="p-4 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between bg-white/5 gap-4">
+        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+          Application Categories
+          {fetchingOverrides && <Loader2 className="w-4 h-4 animate-spin text-blue-500" />}
+        </h2>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <select
+            value={selectedUserId}
+            onChange={(e) => setSelectedUserId(e.target.value)}
+            className="w-full sm:w-auto px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500"
+          >
+            <option value="global">🌍 Global Defaults</option>
+            <optgroup label="Employee Overrides">
+              {employees.map(emp => (
+                <option key={emp.id} value={emp.id}>👤 {emp.name}</option>
+              ))}
+            </optgroup>
+          </select>
+          
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search applications..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-black/50 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500"
+            />
+          </div>
         </div>
       </div>
 
