@@ -18,17 +18,19 @@ export default async function DashboardLayout({
 
   // Fetch Company Branding (Tenant) if user belongs to a tenant
   let tenantLogo = null;
+  let tenantName = null;
   if (session.tenantId) {
     const tenant = await prisma.tenant.findUnique({
       where: { id: session.tenantId },
-      select: { logoBase64: true }
+      select: { name: true, logoBase64: true }
     });
     tenantLogo = tenant?.logoBase64;
+    tenantName = tenant?.name;
   }
 
   // Determine final branding: Tenant logo overrides System logo.
   const branding = {
-    appName: systemSettings?.appName || "NexusTrack",
+    appName: tenantName || systemSettings?.appName || "NexusTrack",
     logoBase64: tenantLogo || systemSettings?.logoBase64 || null
   };
 
