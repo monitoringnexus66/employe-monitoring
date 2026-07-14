@@ -6,6 +6,12 @@ import { Video } from "lucide-react";
 export default async function LiveCCTVPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (session.role === "SUPERADMIN") {
+    redirect("/dashboard/superadmin");
+  }
+  if (session.role === "EMPLOYEE") {
+    redirect("/dashboard/security");
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

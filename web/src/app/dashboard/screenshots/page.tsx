@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function ScreenshotsPage({ searchParams }: { searchParams: { page?: string } }) {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (session.role === "EMPLOYEE") redirect("/dashboard/security");
 
   const page = parseInt(searchParams.page || "1");
   const take = 24;

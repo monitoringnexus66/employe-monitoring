@@ -15,6 +15,7 @@ export default async function EmployeeProfilePage({ params, searchParams }: { pa
   const { date } = await searchParams;
   const session = await getSession();
   if (!session) redirect("/login");
+  if (session.role === "EMPLOYEE") redirect("/dashboard/security");
 
   const user = await prisma.user.findFirst({
     where: { 

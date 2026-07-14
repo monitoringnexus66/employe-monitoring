@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function EmployeesPage() {
   const session = await getSession();
   if (!session) redirect("/login");
+  if (session.role === "EMPLOYEE") redirect("/dashboard/security");
 
   const users = await prisma.user.findMany({
     where: { memberships: { some: { tenantId: session.tenantId } } },

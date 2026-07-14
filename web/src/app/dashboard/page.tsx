@@ -12,6 +12,10 @@ export default async function DashboardPage() {
   if (session.role === "SUPERADMIN") {
     redirect("/dashboard/superadmin");
   }
+  
+  if (session.role === "EMPLOYEE") {
+    redirect("/dashboard/security");
+  }
 
   const tenantId = session.tenantId;
 
