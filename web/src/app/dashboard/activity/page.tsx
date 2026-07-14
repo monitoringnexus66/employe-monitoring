@@ -42,35 +42,36 @@ export default async function ActivityPage({ searchParams }: { searchParams: { p
       </div>
 
       <div className="glass-card rounded-xl overflow-hidden">
-          <table className="w-full text-left border-collapse table-fixed">
+          <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-white/5">
-                <th style={{width:"20%"}} className="p-4 font-medium text-muted-foreground text-sm">Timestamp</th>
-                <th style={{width:"8%"}} className="p-4 font-medium text-muted-foreground text-sm">Status</th>
-                <th style={{width:"14%"}} className="p-4 font-medium text-muted-foreground text-sm">Employee</th>
-                <th style={{width:"18%"}} className="p-4 font-medium text-muted-foreground text-sm">Application</th>
-                <th style={{width:"40%"}} className="p-4 font-medium text-muted-foreground text-sm">Window Title</th>
+                <th className="p-4 font-medium text-muted-foreground text-sm">Timestamp</th>
+                <th className="p-4 font-medium text-muted-foreground text-sm">Status</th>
+                <th className="p-4 font-medium text-muted-foreground text-sm">Employee</th>
+                <th className="p-4 font-medium text-muted-foreground text-sm">Application / Window</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-white/5 transition-colors">
-                  <td className="p-4 text-sm text-gray-300 whitespace-nowrap overflow-hidden text-ellipsis">{new Date(log.timestamp).toLocaleString()}</td>
-                  <td className="p-4 text-sm">
+                  <td className="p-4 text-sm text-gray-300 whitespace-nowrap">{new Date(log.timestamp).toLocaleString()}</td>
+                  <td className="p-4 text-sm whitespace-nowrap">
                     {log.isIdle ? (
                       <span className="px-2 py-1 rounded-md bg-yellow-500/10 text-yellow-400 text-xs font-medium border border-yellow-500/20">Idle</span>
                     ) : (
                       <span className="px-2 py-1 rounded-md bg-green-500/10 text-green-400 text-xs font-medium border border-green-500/20">Active</span>
                     )}
                   </td>
-                  <td className="p-4 text-sm font-medium text-white overflow-hidden text-ellipsis whitespace-nowrap">{log.device?.user?.name || "Unknown"}</td>
-                  <td className="p-4 text-sm text-blue-400 overflow-hidden text-ellipsis whitespace-nowrap">{log.appName}</td>
-                  <td className="p-4 text-sm text-gray-400 overflow-hidden text-ellipsis whitespace-nowrap">{log.windowTitle}</td>
+                  <td className="p-4 text-sm font-medium text-white whitespace-nowrap">{log.device?.user?.name || "Unknown"}</td>
+                  <td className="p-4 text-sm">
+                    <span className="text-blue-400 font-medium">{log.appName}</span>
+                    <p className="text-gray-500 text-xs mt-0.5 truncate max-w-xs">{log.windowTitle}</p>
+                  </td>
                 </tr>
               ))}
               {logs.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-muted-foreground">No activity logs recorded yet.</td>
+                  <td colSpan={4} className="p-8 text-center text-muted-foreground">No activity logs recorded yet.</td>
                 </tr>
               )}
             </tbody>
