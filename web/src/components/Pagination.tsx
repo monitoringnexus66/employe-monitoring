@@ -26,23 +26,37 @@ export default function Pagination({ totalPages, currentPage }: { totalPages: nu
         <ChevronLeft className="w-5 h-5 text-white" />
       </button>
       
-      <div className="flex items-center gap-1">
+      <div className="flex items-center justify-center flex-wrap gap-1">
         {Array.from({ length: totalPages }).map((_, i) => {
           const page = i + 1;
           const isCurrent = page === currentPage;
-          return (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                isCurrent
-                  ? "bg-blue-500 text-white border border-blue-400"
-                  : "bg-secondary/30 text-gray-400 hover:bg-secondary/50 hover:text-white border border-white/5"
-              }`}
-            >
-              {page}
-            </button>
-          );
+          
+          // Only show first, last, current, and adjacent pages
+          if (
+            page === 1 || 
+            page === totalPages || 
+            (page >= currentPage - 1 && page <= currentPage + 1)
+          ) {
+            return (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                  isCurrent
+                    ? "bg-blue-500 text-white border border-blue-400"
+                    : "bg-secondary/30 text-gray-400 hover:bg-secondary/50 hover:text-white border border-white/5"
+                }`}
+              >
+                {page}
+              </button>
+            );
+          } else if (
+            page === currentPage - 2 || 
+            page === currentPage + 2
+          ) {
+            return <span key={page} className="w-10 text-center text-gray-500">...</span>;
+          }
+          return null;
         })}
       </div>
 
