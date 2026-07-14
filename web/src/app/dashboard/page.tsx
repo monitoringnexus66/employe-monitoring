@@ -19,7 +19,10 @@ export default async function DashboardPage() {
 
   const tenantId = session.tenantId;
 
-  const [totalEmployees, totalLogsCount, activityLogs, screenshots] = await Promise.all([
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const [totalEmployees, totalLogsCount, activityLogs, screenshots, recentLogsStats, appCategories] = await Promise.all([
     prisma.user.count({ where: { memberships: { some: { tenantId } } } }),
     prisma.activityLog.count({ where: { tenantId } }),
     prisma.activityLog.findMany({
@@ -33,8 +36,30 @@ export default async function DashboardPage() {
       take: 3,
       orderBy: { timestamp: 'desc' },
       include: { device: { include: { user: true } } }
-    })
+    }),
+    prisma.activityLog.groupBy({
+      by: ['appName'],
+      where: { tenantId, timestamp: { gte: yesterday } },
+      _sum: { durationSeconds: true }
+    }),
+    prisma.appCategory.findMany({ where: { tenantId } })
   ]);
+
+  // Calculate Productivity Score
+  let totalTime = 0;
+  let productiveTime = 0;
+
+  recentLogsStats.forEach(stat => {
+    const duration = stat._sum.durationSeconds || 0;
+    totalTime += duration;
+    
+    const category = appCategories.find(c => c.appName === stat.appName)?.category || "NEUTRAL";
+    if (category === "PRODUCTIVE") {
+      productiveTime += duration;
+    }
+  });
+
+  const productivityScore = totalTime > 0 ? Math.round((productiveTime / totalTime) * 100) : 0;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -65,8 +90,8 @@ export default async function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Total Employees" value={totalEmployees.toString()} icon={Users} color="blue" />
-        <StatCard title="Avg. Productivity" value="84%" icon={Zap} trend="+5% from last week" color="green" />
-        <StatCard title="Total Logs Received" value={activityLogs.length.toString()} icon={Clock} color="purple" />
+        <StatCard title="Avg. Productivity (24h)" value={`${productivityScore}%`} icon={Zap} trend={productivityScore > 50 ? "Healthy" : "Needs Attention"} color={productivityScore > 50 ? "green" : "orange"} />
+        <StatCard title="Total Logs Received" value={totalLogsCount.toString()} icon={Clock} color="purple" />
         <StatCard title="Apps Tracked" value="Live" icon={TrendingUp} color="orange" />
       </div>
 

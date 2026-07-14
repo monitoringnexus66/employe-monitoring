@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video, PackageOpen, Building2 } from "lucide-react";
+import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video, PackageOpen, Building2, CalendarDays } from "lucide-react";
 
 export function Sidebar({ role, hasCCTV }: { role: string, hasCCTV?: boolean }) {
   const pathname = usePathname();
@@ -22,6 +22,8 @@ export function Sidebar({ role, hasCCTV }: { role: string, hasCCTV?: boolean }) 
       { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { name: "Employees", href: "/dashboard/employees", icon: Users },
       { name: "Screenshots", href: "/dashboard/screenshots", icon: ImageIcon },
+      { name: "Productivity", href: "/dashboard/productivity", icon: Activity },
+      { name: "Timesheets", href: "/dashboard/timesheets", icon: CalendarDays },
       ...(hasCCTV ? [{ name: "Live CCTV", href: "/dashboard/live", icon: Video }] : []),
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
       { name: "Security", href: "/dashboard/security", icon: ShieldCheck },

@@ -61,6 +61,24 @@ model Tenant {
   memberships        TenantMembership[]
   activityLogs       ActivityLog[]
   screenshots        Screenshot[]
+  appCategories      AppCategory[]
+}
+
+enum ProductivityCategory {
+  PRODUCTIVE
+  UNPRODUCTIVE
+  NEUTRAL
+}
+
+model AppCategory {
+  id        String               @id @default(cuid())
+  tenantId  String
+  appName   String
+  category  ProductivityCategory @default(NEUTRAL)
+  
+  tenant    Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@unique([tenantId, appName])
 }
 
 model TenantMembership {
