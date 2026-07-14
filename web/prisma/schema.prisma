@@ -47,6 +47,12 @@ model Tenant {
   primaryContactPhone String?
   renewalDate        DateTime?
 
+  // Settings
+  defaultScreenshotInterval Int      @default(300)
+  idleTimeout               Int      @default(5)
+  blurScreenshots           Boolean  @default(false)
+  timezone                  String   @default("UTC")
+
   // Package Relation
   packageId          String?
   package            Package? @relation(fields: [packageId], references: [id])

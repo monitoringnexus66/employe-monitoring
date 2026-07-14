@@ -41,41 +41,37 @@ export default async function ActivityPage({ searchParams }: { searchParams: { p
         </div>
       </div>
 
-      <div className="glass-card rounded-xl overflow-hidden">
-          <table className="w-full text-left border-collapse table-fixed">
-            <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                <th className="p-4 font-medium text-muted-foreground text-sm w-1/4">Timestamp</th>
-                <th className="p-4 font-medium text-muted-foreground text-sm w-24">Status</th>
-                <th className="p-4 font-medium text-muted-foreground text-sm w-1/4">Employee</th>
-                <th className="p-4 font-medium text-muted-foreground text-sm w-auto">Application / Window</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-white/5 transition-colors">
-                  <td className="p-4 text-sm text-gray-300 truncate">{new Date(log.timestamp).toLocaleString()}</td>
-                  <td className="p-4 text-sm">
-                    {log.isIdle ? (
-                      <span className="px-2 py-1 rounded-md bg-yellow-500/10 text-yellow-400 text-xs font-medium border border-yellow-500/20">Idle</span>
-                    ) : (
-                      <span className="px-2 py-1 rounded-md bg-green-500/10 text-green-400 text-xs font-medium border border-green-500/20">Active</span>
-                    )}
-                  </td>
-                  <td className="p-4 text-sm font-medium text-white truncate">{log.device?.user?.name || "Unknown"}</td>
-                  <td className="p-4 text-sm truncate">
-                    <div className="text-blue-400 font-medium truncate">{log.appName}</div>
-                    <div className="text-gray-500 text-xs mt-0.5 truncate">{log.windowTitle}</div>
-                  </td>
-                </tr>
-              ))}
-              {logs.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="p-8 text-center text-muted-foreground">No activity logs recorded yet.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <div className="glass-card rounded-xl overflow-hidden flex flex-col">
+          <div className="flex items-center border-b border-white/10 bg-white/5 p-4 text-sm font-medium text-muted-foreground">
+            <div className="w-1/4">Timestamp</div>
+            <div className="w-24">Status</div>
+            <div className="w-1/4">Employee</div>
+            <div className="flex-1">Application / Window</div>
+          </div>
+          <div className="flex flex-col divide-y divide-white/5">
+            {logs.map((log) => (
+              <div key={log.id} className="flex items-center p-4 hover:bg-white/5 transition-colors">
+                <div className="w-1/4 text-sm text-gray-300 truncate pr-4">{new Date(log.timestamp).toLocaleString()}</div>
+                <div className="w-24 shrink-0">
+                  {log.isIdle ? (
+                    <span className="px-2 py-1 rounded-md bg-yellow-500/10 text-yellow-400 text-xs font-medium border border-yellow-500/20">Idle</span>
+                  ) : (
+                    <span className="px-2 py-1 rounded-md bg-green-500/10 text-green-400 text-xs font-medium border border-green-500/20">Active</span>
+                  )}
+                </div>
+                <div className="w-1/4 text-sm font-medium text-white truncate pr-4">{log.device?.user?.name || "Unknown"}</div>
+                <div className="flex-1 min-w-0 flex flex-col">
+                  <span className="text-blue-400 font-medium text-sm truncate">{log.appName}</span>
+                  <span className="text-gray-500 text-xs mt-0.5 truncate">{log.windowTitle}</span>
+                </div>
+              </div>
+            ))}
+            {logs.length === 0 && (
+              <div className="p-8 text-center text-muted-foreground">
+                No activity logs recorded yet.
+              </div>
+            )}
+          </div>
       </div>
       
       <Pagination totalPages={totalPages} currentPage={page} />
