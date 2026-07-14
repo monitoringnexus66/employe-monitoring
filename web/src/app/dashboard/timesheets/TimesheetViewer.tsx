@@ -1,13 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Loader2, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, User, Download, BrainCircuit, FileText, FileSpreadsheet } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import { exportToCSV, exportToPDF } from "@/lib/exportUtils";
 
 export default function TimesheetViewer({ employees, tenantId, appCategories }: { employees: any[], tenantId: string, appCategories: any[] }) {
   const [selectedUserId, setSelectedUserId] = useState<string>(employees[0]?.id || "");
   const [date, setDate] = useState<Date>(new Date());
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  const [insight, setInsight] = useState<string | null>(null);
+  const [loadingInsight, setLoadingInsight] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   useEffect(() => {
     if (!selectedUserId) return;
@@ -41,6 +47,31 @@ export default function TimesheetViewer({ employees, tenantId, appCategories }: 
     const d = new Date(date);
     d.setDate(d.getDate() + 1);
     setDate(d);
+  };
+
+  const generateInsight = async () => {
+    if (!selectedUserId || logs.length === 0) return;
+    setLoadingInsight(true);
+    setInsight(null);
+    try {
+      const dateStr = date.toISOString().split('T')[0];
+      const res = await fetch("/api/ai/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: selectedUserId, date: dateStr }),
+      });
+      const data = await res.json();
+      if (res.ok && data.insight) {
+        setInsight(data.insight);
+      } else {
+        setInsight("Failed to generate insight or no data available.");
+      }
+    } catch (error) {
+      console.error(error);
+      setInsight("An error occurred while communicating with the AI.");
+    } finally {
+      setLoadingInsight(false);
+    }
   };
 
   // Timeline rendering logic (9 AM to 5 PM mapped to 0-100%)
@@ -117,21 +148,75 @@ export default function TimesheetViewer({ employees, tenantId, appCategories }: 
           </select>
         </div>
 
-        {/* Date Navigator */}
-        <div className="flex items-center gap-4 bg-white/5 p-1 rounded-lg border border-white/10">
-          <button onClick={handlePrevDay} className="p-1.5 hover:bg-white/10 rounded-md transition-colors">
-            <ChevronLeft className="w-4 h-4 text-gray-300" />
-          </button>
-          <span className="text-sm font-medium text-white min-w-[120px] text-center">
-            {date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-          </span>
-          <button onClick={handleNextDay} className="p-1.5 hover:bg-white/10 rounded-md transition-colors">
-            <ChevronRight className="w-4 h-4 text-gray-300" />
-          </button>
+        {/* Right side controls */}
+        <div className="flex items-center gap-4">
+          
+          {/* Export Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 text-sm font-medium text-white transition-colors"
+            >
+              <Download className="w-4 h-4 text-gray-400" />
+              Export
+            </button>
+            
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-48 rounded-xl bg-black/90 border border-white/10 shadow-xl overflow-hidden z-20 backdrop-blur-xl">
+                <button 
+                  onClick={() => {
+                    const employeeName = employees.find(e => e.id === selectedUserId)?.name || "Employee";
+                    exportToCSV(logs, employeeName, date);
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-green-400" />
+                  Export as CSV
+                </button>
+                <button 
+                  onClick={() => {
+                    const employeeName = employees.find(e => e.id === selectedUserId)?.name || "Employee";
+                    exportToPDF(logs, employeeName, date);
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-white/10 transition-colors border-t border-white/5"
+                >
+                  <FileText className="w-4 h-4 text-red-400" />
+                  Export as PDF
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Date Navigator */}
+          <div className="flex items-center gap-4 bg-white/5 p-1 rounded-lg border border-white/10">
+            <button onClick={handlePrevDay} className="p-1.5 hover:bg-white/10 rounded-md transition-colors">
+              <ChevronLeft className="w-4 h-4 text-gray-300" />
+            </button>
+            <span className="text-sm font-medium text-white min-w-[120px] text-center">
+              {date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+            </span>
+            <button onClick={handleNextDay} className="p-1.5 hover:bg-white/10 rounded-md transition-colors">
+              <ChevronRight className="w-4 h-4 text-gray-300" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="mt-12 mb-4">
+      {/* AI Actions */}
+      <div className="flex justify-end mb-8">
+        <button 
+          onClick={generateInsight}
+          disabled={loadingInsight || logs.length === 0}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium text-sm transition-all shadow-lg shadow-purple-500/20 disabled:opacity-50"
+        >
+          {loadingInsight ? <Loader2 className="w-4 h-4 animate-spin" /> : <BrainCircuit className="w-4 h-4" />}
+          {loadingInsight ? "Analyzing..." : "Generate AI Insight"}
+        </button>
+      </div>
+
+      <div className="mt-4 mb-8">
         {renderTimeline()}
       </div>
 
@@ -142,6 +227,20 @@ export default function TimesheetViewer({ employees, tenantId, appCategories }: 
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-gray-400"></div><span className="text-xs text-gray-400">Neutral</span></div>
         <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-yellow-500"></div><span className="text-xs text-gray-400">Idle</span></div>
       </div>
+
+      {/* AI Insight Card */}
+      {insight && (
+        <div className="mt-8 p-6 rounded-xl border border-purple-500/30 bg-purple-500/5 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full -mr-20 -mt-20"></div>
+          <div className="flex items-center gap-2 mb-4 relative z-10">
+            <BrainCircuit className="w-5 h-5 text-purple-400" />
+            <h3 className="font-semibold text-white">DeepSeek AI Analysis</h3>
+          </div>
+          <div className="prose prose-invert prose-p:text-sm prose-p:text-gray-300 prose-li:text-gray-300 max-w-none relative z-10">
+            <ReactMarkdown>{insight}</ReactMarkdown>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
