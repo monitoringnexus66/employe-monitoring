@@ -298,23 +298,27 @@ export default function SettingsPage() {
             </p>
 
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                    <ExternalLink className="w-4 h-4 text-blue-400" />
+              <a href="/downloads/NexusTrack-Mac.dmg" download className="block w-full">
+                <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                      <ExternalLink className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <span className="text-sm font-medium text-white">Download for Mac</span>
                   </div>
-                  <span className="text-sm font-medium text-white">Download for Mac</span>
                 </div>
-              </button>
+              </a>
               
-              <button className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                    <ExternalLink className="w-4 h-4 text-purple-400" />
+              <a href="/downloads/NexusTrack-Windows.exe" download className="block w-full">
+                <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <ExternalLink className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <span className="text-sm font-medium text-white">Download for Windows</span>
                   </div>
-                  <span className="text-sm font-medium text-white">Download for Windows</span>
                 </div>
-              </button>
+              </a>
             </div>
 
             <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20 flex gap-2">
