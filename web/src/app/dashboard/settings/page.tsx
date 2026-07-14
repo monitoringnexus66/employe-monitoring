@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Save, Settings as SettingsIcon, Shield, Building2, CreditCard, Download, ExternalLink, Loader2, Info } from "lucide-react";
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState({ message: "", type: "" });
@@ -94,6 +96,7 @@ export default function SettingsPage() {
         setSaveStatus({ message: "Settings saved successfully", type: "success" });
         const data = await res.json();
         setTenant(data.tenant);
+        router.refresh();
       } else {
         setSaveStatus({ message: "Failed to save settings", type: "error" });
       }
