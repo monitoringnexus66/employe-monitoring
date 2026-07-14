@@ -6,6 +6,7 @@ import { getSession } from "@/lib/auth";
 import ScreenshotGallery from "./ScreenshotGallery";
 import CaptureSettings from "./CaptureSettings";
 import DatePickerFilter from "./DatePickerFilter";
+import DeleteEmployeeButton from "./DeleteEmployeeButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -123,7 +124,10 @@ export default async function EmployeeProfilePage({ params, searchParams }: { pa
           </div>
         </div>
         
-        <DatePickerFilter />
+        <div className="flex items-center gap-4">
+          <DatePickerFilter />
+          <DeleteEmployeeButton userId={user.id} userName={user.name} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

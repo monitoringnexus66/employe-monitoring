@@ -15,7 +15,9 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, machineId, osInfo = "macOS" } = body;
+    let { email, password, machineId, osInfo = "macOS" } = body;
+    email = email?.trim().toLowerCase();
+    password = password?.trim();
 
     const user = await prisma.user.findUnique({
       where: { email },

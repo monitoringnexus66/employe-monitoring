@@ -41,6 +41,7 @@ export default async function CustomersPage() {
             <thead>
               <tr className="border-b border-white/10 bg-white/5">
                 <th className="p-4 font-medium text-muted-foreground text-sm">Company Name</th>
+                <th className="p-4 font-medium text-muted-foreground text-sm w-24">Actions</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Customer ID</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Contact Name</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Email</th>
@@ -51,13 +52,15 @@ export default async function CustomersPage() {
                 <th className="p-4 font-medium text-muted-foreground text-sm">Status</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Monthly Val</th>
                 <th className="p-4 font-medium text-muted-foreground text-sm">Renewal</th>
-                <th className="p-4 font-medium text-muted-foreground text-sm sticky right-0 bg-[#0f1115]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {tenants.map((tenant) => (
                 <tr key={tenant.id} className="hover:bg-white/5 transition-colors">
                   <td className="p-4 text-sm font-medium text-white">{tenant.name}</td>
+                  <td className="p-4 text-sm">
+                    <EditCustomerModal tenant={tenant} packages={packages} />
+                  </td>
                   <td className="p-4 text-sm text-gray-400">{tenant.customerId || "N/A"}</td>
                   <td className="p-4 text-sm text-gray-300">{tenant.primaryContactName || "N/A"}</td>
                   <td className="p-4 text-sm text-gray-300">{tenant.primaryContactEmail || "N/A"}</td>
@@ -81,9 +84,6 @@ export default async function CustomersPage() {
                   </td>
                   <td className="p-4 text-sm text-gray-400">
                     {tenant.renewalDate ? new Date(tenant.renewalDate).toLocaleDateString() : "N/A"}
-                  </td>
-                  <td className="p-4 text-sm sticky right-0 bg-[#0f1115] border-l border-white/5 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.5)]">
-                    <EditCustomerModal tenant={tenant} packages={packages} />
                   </td>
                 </tr>
               ))}

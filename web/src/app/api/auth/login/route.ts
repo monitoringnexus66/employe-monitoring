@@ -5,7 +5,9 @@ import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    let { email, password } = await request.json();
+    email = email?.trim().toLowerCase();
+    password = password?.trim();
     
     // Auto-seed: If this is the very first login and no SUPERADMIN exists,
     // we intercept 'admin@nexus.com' and create the global superadmin account.

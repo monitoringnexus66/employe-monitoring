@@ -25,8 +25,11 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, password } = body;
+    let { name, email, password } = body;
     const tenantId = session.tenantId;
+
+    email = email?.trim().toLowerCase();
+    password = password?.trim();
 
     // Check if the user already exists globally
     let user = await prisma.user.findUnique({ where: { email } });
