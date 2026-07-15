@@ -33,6 +33,26 @@ function App() {
   const [activeWorkspaceName, setActiveWorkspaceName] = useState("");
   const [screenshotInterval, setScreenshotInterval] = useState(60);
 
+  // Branding State
+  const [appName, setAppName] = useState("NexusTrack");
+  const [appLogo, setAppLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch Global Platform Branding
+    fetch("https://employe-monitoring.vercel.app/api/superadmin/branding")
+      .then(res => res.json())
+      .then(data => {
+        if (data.appName) setAppName(data.appName);
+        if (data.logoBase64) setAppLogo(data.logoBase64);
+        
+        // Dynamically update window title if using Tauri Window API
+        import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
+          getCurrentWindow().setTitle(`${data.appName || "NexusTrack"} Agent`);
+        }).catch(() => {});
+      })
+      .catch(console.error);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -269,7 +289,8 @@ function App() {
     return (
       <main className="app-container">
         <div className="header">
-          <h1>NexusTrack</h1>
+          {appLogo && <img src={appLogo} alt="Logo" style={{ width: '48px', height: '48px', marginBottom: '1rem', borderRadius: '12px' }} />}
+          <h1>{appName}</h1>
           <p>Sign in to connect this device</p>
         </div>
 
@@ -306,7 +327,8 @@ function App() {
   return (
     <main className="app-container" style={{ textAlign: "center" }}>
       <div className="header">
-        <h1>NexusTrack</h1>
+        {appLogo && <img src={appLogo} alt="Logo" style={{ width: '48px', height: '48px', marginBottom: '1rem', borderRadius: '12px', display: 'inline-block' }} />}
+        <h1>{appName}</h1>
         <p>Running stealthily in background</p>
       </div>
       
@@ -355,7 +377,7 @@ function App() {
           onClick={() => { setIsAuthenticated(false); setWorkspaces([]); }}
           style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "0.8rem", cursor: "pointer", textDecoration: "underline" }}
         >
-          Sign Out of NexusTrack
+          Sign Out of {appName}
         </button>
       </div>
     </main>
