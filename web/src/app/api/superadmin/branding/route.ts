@@ -9,7 +9,7 @@ export async function GET() {
     });
     
     if (!settings) {
-      return NextResponse.json({ appName: "NexusTrack", logoBase64: null });
+      return NextResponse.json({ appName: "CHIIO OS", logoBase64: null });
     }
     
     return NextResponse.json(settings);
@@ -31,12 +31,12 @@ export async function POST(req: Request) {
     const updated = await prisma.systemSettings.upsert({
       where: { id: "global" },
       update: {
-        appName: appName || "NexusTrack",
+        appName: appName || "CHIIO OS",
         logoBase64: logoBase64 !== undefined ? logoBase64 : undefined,
       },
       create: {
         id: "global",
-        appName: appName || "NexusTrack",
+        appName: appName || "CHIIO OS",
         logoBase64: logoBase64 || null,
       }
     });

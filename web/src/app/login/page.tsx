@@ -4,13 +4,14 @@ import { useRouter } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [appName, setAppName] = useState("NexusTrack Admin");
+  const [error, setError] = useState("");
+  
+  const [appName, setAppName] = useState("CHIIO OS Admin");
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     fetch("/api/superadmin/branding")

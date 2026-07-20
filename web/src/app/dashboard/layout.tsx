@@ -16,23 +16,21 @@ export default async function DashboardLayout({
     where: { id: "global" }
   });
 
-  // Fetch Company Branding (Tenant) if user belongs to a tenant
-  let tenantLogo = null;
-  let tenantName = null;
-  if (session.tenantId) {
+  // Determine final branding (defaulting to CHIIO OS)
+  const branding = {
+    appName: systemSettings?.appName || "CHIIO OS",
+    logoBase64: systemSettings?.logoBase64 || null
+  };
+
+  // Only non-SuperAdmins get their tenant branding overrides
+  if (session.role !== "SUPERADMIN" && session.tenantId) {
     const tenant = await prisma.tenant.findUnique({
       where: { id: session.tenantId },
       select: { name: true, logoBase64: true }
     });
-    tenantLogo = tenant?.logoBase64;
-    tenantName = tenant?.name;
+    if (tenant?.logoBase64) branding.logoBase64 = tenant.logoBase64;
+    if (tenant?.name) branding.appName = tenant.name;
   }
-
-  // Determine final branding: Tenant logo overrides System logo.
-  const branding = {
-    appName: tenantName || systemSettings?.appName || "NexusTrack",
-    logoBase64: tenantLogo || systemSettings?.logoBase64 || null
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">

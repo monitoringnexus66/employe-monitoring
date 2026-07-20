@@ -15,7 +15,7 @@ export function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
   
-  const appName = branding?.appName || "NexusTrack";
+  const appName = branding?.appName || "CHIIO OS";
   const logo = branding?.logoBase64;
 
   let navItems = [];

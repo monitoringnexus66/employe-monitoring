@@ -34,7 +34,7 @@ function App() {
   const [screenshotInterval, setScreenshotInterval] = useState(60);
 
   // Branding State
-  const [appName, setAppName] = useState("NexusTrack");
+  const [appName, setAppName] = useState("chiiOS");
   const [appLogo, setAppLogo] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,12 +42,13 @@ function App() {
     fetch("https://employe-monitoring.vercel.app/api/superadmin/branding")
       .then(res => res.json())
       .then(data => {
-        if (data.appName) setAppName(data.appName);
+        if (data.appName && data.appName !== "NexusTrack") setAppName(data.appName);
         if (data.logoBase64) setAppLogo(data.logoBase64);
         
         // Dynamically update window title if using Tauri Window API
         import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
-          getCurrentWindow().setTitle(`${data.appName || "NexusTrack"} Agent`);
+          const title = (data.appName && data.appName !== "NexusTrack") ? data.appName : "chiiOS";
+          getCurrentWindow().setTitle(title);
         }).catch(() => {});
       })
       .catch(console.error);

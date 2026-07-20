@@ -13,7 +13,7 @@ export default function SuperAdminBrandingPage() {
     fetch("/api/superadmin/branding")
       .then(res => res.json())
       .then(data => {
-        setAppName(data.appName || "NexusTrack");
+        setAppName(data.appName || "CHIIO OS");
         setLogoBase64(data.logoBase64 || null);
         setLoading(false);
       });
@@ -85,7 +85,7 @@ export default function SuperAdminBrandingPage() {
               value={appName}
               onChange={(e) => setAppName(e.target.value)}
               className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500 transition-colors"
-              placeholder="e.g. NexusTrack"
+              placeholder="e.g. CHIIO OS"
             />
             <p className="text-xs text-muted-foreground mt-2">
               This name will be used in the sidebar and page titles.
