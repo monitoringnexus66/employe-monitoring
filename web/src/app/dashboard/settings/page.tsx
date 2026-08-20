@@ -354,7 +354,7 @@ export default function SettingsPage() {
             </p>
 
             <div className="space-y-3">
-              <a href="/downloads/NexusTrack-Mac.dmg" download className="block w-full">
+              <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.0/chiiOs.Agent_0.1.0_aarch64.dmg" target="_blank" rel="noopener noreferrer" className="block w-full">
                 <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -365,7 +365,7 @@ export default function SettingsPage() {
                 </div>
               </a>
               
-              <a href="/downloads/NexusTrack-Windows.exe" download className="block w-full">
+              <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.0/chiiOs.Agent_0.1.0_x64-setup.exe" target="_blank" rel="noopener noreferrer" className="block w-full">
                 <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
