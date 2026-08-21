@@ -17,7 +17,7 @@ export default async function CustomersPage() {
     include: {
       package: true,
       _count: {
-        select: { memberships: true }
+        select: { memberships: { where: { role: "EMPLOYEE" } } }
       }
     }
   });

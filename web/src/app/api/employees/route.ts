@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     const tenant = await prisma.tenant.findUnique({
       where: { id: session.tenantId },
-      include: { package: true, _count: { select: { memberships: true } } }
+      include: { package: true, _count: { select: { memberships: { where: { role: "EMPLOYEE" } } } } }
     });
 
     if (!tenant?.package) {

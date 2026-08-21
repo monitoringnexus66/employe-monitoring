@@ -14,7 +14,7 @@ export async function GET(req: Request) {
       include: {
         package: true,
         _count: {
-          select: { memberships: true },
+          select: { memberships: { where: { role: "EMPLOYEE" } } },
         },
       },
     });

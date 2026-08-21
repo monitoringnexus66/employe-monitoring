@@ -15,8 +15,9 @@ export default async function SuperAdminPage() {
 
   const tenants = await prisma.tenant.findMany({
     include: {
+      package: true,
       _count: {
-        select: { memberships: true, activityLogs: true }
+        select: { memberships: { where: { role: "EMPLOYEE" } }, activityLogs: true }
       }
     }
   });
