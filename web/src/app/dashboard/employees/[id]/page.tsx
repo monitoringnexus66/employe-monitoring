@@ -21,7 +21,7 @@ export default async function EmployeeProfilePage({ params, searchParams }: { pa
   const user = await prisma.user.findFirst({
     where: { 
       id,
-      memberships: { some: { tenantId: session.tenantId } }
+      memberships: { some: { tenantId: session.tenantId, role: "EMPLOYEE" } }
     },
     include: { 
       devices: true,

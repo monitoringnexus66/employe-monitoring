@@ -16,7 +16,7 @@ export default async function TimesheetsPage() {
 
   // Fetch all employees in this tenant to populate the selector
   const employees = await prisma.user.findMany({
-    where: { memberships: { some: { tenantId } } },
+    where: { memberships: { some: { tenantId, role: "EMPLOYEE" } } },
     select: { id: true, name: true, email: true }
   });
 

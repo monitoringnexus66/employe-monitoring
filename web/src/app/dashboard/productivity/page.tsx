@@ -33,7 +33,7 @@ export default async function ProductivityPage() {
   });
 
   const employees = await prisma.user.findMany({
-    where: { memberships: { some: { tenantId: session.tenantId } } },
+    where: { memberships: { some: { tenantId: session.tenantId, role: "EMPLOYEE" } } },
     select: { id: true, name: true }
   });
 

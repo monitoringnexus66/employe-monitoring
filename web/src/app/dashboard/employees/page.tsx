@@ -13,7 +13,7 @@ export default async function EmployeesPage() {
   if (session.role === "EMPLOYEE") redirect("/dashboard/security");
 
   const users = await prisma.user.findMany({
-    where: { memberships: { some: { tenantId: session.tenantId } } },
+    where: { memberships: { some: { tenantId: session.tenantId, role: "EMPLOYEE" } } },
     include: {
       devices: true,
       memberships: { where: { tenantId: session.tenantId } }

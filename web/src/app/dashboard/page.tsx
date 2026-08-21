@@ -23,7 +23,7 @@ export default async function DashboardPage() {
   yesterday.setDate(yesterday.getDate() - 1);
 
   const [totalEmployees, totalLogsCount, activityLogs, screenshots, recentLogsStats, appCategories] = await Promise.all([
-    prisma.user.count({ where: { memberships: { some: { tenantId } } } }),
+    prisma.user.count({ where: { memberships: { some: { tenantId, role: "EMPLOYEE" } } } }),
     prisma.activityLog.count({ where: { tenantId } }),
     prisma.activityLog.findMany({
       where: { tenantId },
