@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ShieldCheck, KeyRound, Loader2, Lock, ExternalLink } from "lucide-react";
+import ApiKeyForm from "./ApiKeyForm";
 
 export default function SecurityPage() {
   const [saving, setSaving] = useState(false);
@@ -146,49 +147,7 @@ export default function SecurityPage() {
             </div>
           </form>
         </div>
-
-        {/* Download Agent */}
-        <div className="glass-card p-6 rounded-xl border border-white/5 space-y-6 bg-gradient-to-b from-blue-900/20 to-transparent">
-          <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-            <h2 className="text-xl font-semibold text-white">Desktop Agent</h2>
-          </div>
-          
-          <p className="text-sm text-muted-foreground">
-            You must install the tracking agent to begin monitoring activity.
-          </p>
-
-          <div className="space-y-3">
-            <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.1/chiiOs.Agent_0.1.1_universal.dmg" target="_blank" rel="noopener noreferrer" className="block w-full">
-              <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                    <ExternalLink className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <span className="text-sm font-medium text-white">Download for Mac (Intel & M-Series)</span>
-                </div>
-              </div>
-            </a>
-            
-            <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.1/chiiOs.Agent_0.1.1_x64-setup.exe" target="_blank" rel="noopener noreferrer" className="block w-full">
-              <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                    <ExternalLink className="w-4 h-4 text-purple-400" />
-                  </div>
-                  <span className="text-sm font-medium text-white">Download for Windows</span>
-                </div>
-              </div>
-            </a>
-          </div>
-
-          <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20 flex gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-400 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-            <p className="text-xs text-blue-200">
-              Log in to the desktop app using your current employee email and password.
-            </p>
-          </div>
-        </div>
+        <ApiKeyForm />
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ export default function TimesheetViewer({
   appCategories: any[],
   employeeAppCategories: any[]
 }) {
-  const [selectedUserId, setSelectedUserId] = useState<string>(employees[0]?.id || "");
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [date, setDate] = useState<Date>(new Date());
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -161,6 +161,7 @@ export default function TimesheetViewer({
             onChange={(e) => setSelectedUserId(e.target.value)}
             className="appearance-none bg-transparent text-white font-medium focus:outline-none cursor-pointer"
           >
+            <option value="" disabled className="bg-black text-white/50">Select Employee</option>
             {employees.map(e => (
               <option key={e.id} value={e.id} className="bg-black text-white">{e.name}</option>
             ))}

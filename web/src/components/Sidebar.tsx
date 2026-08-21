@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video, PackageOpen, Building2, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Users, Image as ImageIcon, Settings, Activity, LogOut, ShieldCheck, Video, PackageOpen, Building2, CalendarDays, Download } from "lucide-react";
 
 export function Sidebar({ 
   role, 
@@ -37,12 +37,14 @@ export function Sidebar({
       { name: "Productivity", href: "/dashboard/productivity", icon: Activity },
       { name: "Timesheets", href: "/dashboard/timesheets", icon: CalendarDays },
       ...(hasCCTV ? [{ name: "Live CCTV", href: "/dashboard/live", icon: Video }] : []),
+      { name: "Download App", href: "/dashboard/download", icon: Download },
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
       { name: "Security", href: "/dashboard/security", icon: ShieldCheck },
     ];
   } else {
     // Regular EMPLOYEE
     navItems = [
+      { name: "Download App", href: "/dashboard/download", icon: Download },
       { name: "Security", href: "/dashboard/security", icon: ShieldCheck },
     ];
   }

@@ -61,6 +61,7 @@ model Tenant {
   blurScreenshots           Boolean  @default(false)
   timezone                  String   @default("UTC")
   logoBase64                String?
+  deepseekApiKey            String?
 
   // Package Relation
   packageId          String?

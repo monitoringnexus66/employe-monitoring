@@ -11,9 +11,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: session.tenantId },
+      select: { deepseekApiKey: true }
+    });
+
+    const apiKey = tenant?.deepseekApiKey || process.env.DEEPSEEK_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "DEEPSEEK_API_KEY not configured." }, { status: 500 });
+      return NextResponse.json({ error: "DeepSeek API Key is not configured in Security settings." }, { status: 400 });
     }
 
     const { userId } = await req.json();

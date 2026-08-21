@@ -50,6 +50,7 @@ export async function PATCH(req: Request) {
     if (body.idleTimeout !== undefined) updateData.idleTimeout = body.idleTimeout;
     if (body.blurScreenshots !== undefined) updateData.blurScreenshots = body.blurScreenshots;
     if (body.logoBase64 !== undefined) updateData.logoBase64 = body.logoBase64;
+    if (body.deepseekApiKey !== undefined) updateData.deepseekApiKey = body.deepseekApiKey;
 
     const updatedTenant = await prisma.tenant.update({
       where: { id: session.tenantId },
