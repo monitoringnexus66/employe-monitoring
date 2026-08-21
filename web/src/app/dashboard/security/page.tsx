@@ -159,18 +159,18 @@ export default function SecurityPage() {
           </p>
 
           <div className="space-y-3">
-            <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.0/chiiOs.Agent_0.1.0_aarch64.dmg" target="_blank" rel="noopener noreferrer" className="block w-full">
+            <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.1/chiiOs.Agent_0.1.1_universal.dmg" target="_blank" rel="noopener noreferrer" className="block w-full">
               <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
                     <ExternalLink className="w-4 h-4 text-blue-400" />
                   </div>
-                  <span className="text-sm font-medium text-white">Download for Mac</span>
+                  <span className="text-sm font-medium text-white">Download for Mac (Intel & M-Series)</span>
                 </div>
               </div>
             </a>
             
-            <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.0/chiiOs.Agent_0.1.0_x64-setup.exe" target="_blank" rel="noopener noreferrer" className="block w-full">
+            <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.1/chiiOs.Agent_0.1.1_x64-setup.exe" target="_blank" rel="noopener noreferrer" className="block w-full">
               <div className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
