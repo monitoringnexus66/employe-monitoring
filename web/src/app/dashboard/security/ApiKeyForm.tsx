@@ -16,12 +16,12 @@ export default function ApiKeyForm() {
         const sessionRes = await fetch("/api/auth/session");
         if (sessionRes.ok) {
           const session = await sessionRes.json();
-          if (session.role === "ADMIN" || session.role === "SUPERADMIN") {
+          if (session.role === "SUPERADMIN") {
             setIsAdmin(true);
-            const res = await fetch("/api/tenant/settings");
+            const res = await fetch("/api/superadmin/settings");
             if (res.ok) {
               const data = await res.json();
-              setApiKey(data.tenant.deepseekApiKey || "");
+              setApiKey(data.deepseekApiKey || "");
             }
           }
         }
@@ -40,7 +40,7 @@ export default function ApiKeyForm() {
     setSaving(true);
 
     try {
-      const res = await fetch("/api/tenant/settings", {
+      const res = await fetch("/api/superadmin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ deepseekApiKey: apiKey }),
