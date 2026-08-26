@@ -1,6 +1,4 @@
-use std::process::Command;
 use serde::Serialize;
-use std::fs;
 use base64::{Engine as _, engine::general_purpose};
 
 #[derive(Serialize)]
@@ -44,9 +42,9 @@ fn take_screenshot() -> Result<ScreenshotResponse, String> {
     let mut max_height = 0;
 
     for monitor in &monitors {
-        total_width += monitor.width();
-        if monitor.height() > max_height {
-            max_height = monitor.height();
+        total_width += monitor.width().unwrap_or(0);
+        if monitor.height().unwrap_or(0) > max_height {
+            max_height = monitor.height().unwrap_or(0);
         }
     }
 
@@ -56,7 +54,7 @@ fn take_screenshot() -> Result<ScreenshotResponse, String> {
     for monitor in &monitors {
         if let Ok(rgba_image) = monitor.capture_image() {
             image::imageops::overlay(&mut combined_image, &rgba_image, current_x as i64, 0);
-            current_x += monitor.width();
+            current_x += monitor.width().unwrap_or(0);
         }
     }
     
