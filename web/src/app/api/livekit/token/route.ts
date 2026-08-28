@@ -38,6 +38,7 @@ export async function GET(req: Request) {
     const at = new AccessToken(apiKey, apiSecret, {
       identity,
       name,
+      ttl: '30d',
     });
 
     at.addGrant({

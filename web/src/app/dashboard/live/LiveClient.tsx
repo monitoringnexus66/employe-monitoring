@@ -10,16 +10,29 @@ export default function LiveClient({ tenantId }: { tenantId: string }) {
   const [token, setToken] = useState("");
   const [url, setUrl] = useState("");
 
+  const [connectKey, setConnectKey] = useState(0);
+
   useEffect(() => {
+    let isMounted = true;
     fetch(`/api/livekit/token?room=${tenantId}&isAgent=false`)
       .then(res => res.json())
       .then(data => {
-        if (data.token) {
+        if (isMounted && data.token) {
           setToken(data.token);
           setUrl(data.url);
         }
-      });
-  }, [tenantId]);
+      })
+      .catch(err => console.error("Error fetching CCTV token:", err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tenantId, connectKey]);
+
+  const handleReconnect = () => {
+    setToken("");
+    setConnectKey(prev => prev + 1);
+  };
 
   if (token === "") {
     return (
@@ -32,21 +45,28 @@ export default function LiveClient({ tenantId }: { tenantId: string }) {
 
   return (
     <LiveKitRoom
+      key={connectKey}
       video={false}
       audio={false}
       token={token}
       serverUrl={url}
+      connect={true}
       data-lk-theme="default"
       style={{ height: '70vh' }}
       className="glass-card rounded-xl overflow-hidden"
+      onDisconnected={handleReconnect}
+      onError={(err) => {
+        console.error("LiveKit room error:", err);
+        handleReconnect();
+      }}
     >
-      <CCTVGrid />
+      <CCTVGrid onRefresh={handleReconnect} />
       <RoomAudioRenderer />
     </LiveKitRoom>
   );
 }
 
-function CCTVGrid() {
+function CCTVGrid({ onRefresh }: { onRefresh?: () => void }) {
   const tracks = useTracks(
     [
       { source: Track.Source.ScreenShare, withPlaceholder: false },
@@ -60,7 +80,15 @@ function CCTVGrid() {
       <div className="flex flex-col items-center justify-center h-full">
         <MonitorPlay className="w-16 h-16 text-gray-500 mb-4" />
         <h2 className="text-xl font-semibold text-white">No Active Screens</h2>
-        <p className="text-gray-400 mt-2">Waiting for agents to start broadcasting...</p>
+        <p className="text-gray-400 mt-2 mb-4">Waiting for agents to start broadcasting...</p>
+        {onRefresh && (
+          <button 
+            onClick={onRefresh}
+            className="px-4 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            Refresh Stream
+          </button>
+        )}
       </div>
     );
   }

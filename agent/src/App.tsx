@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Room, Track } from "livekit-client";
+import { Room, RoomEvent, Track } from "livekit-client";
 import "./App.css";
 
 interface ActiveApp {
@@ -140,19 +140,71 @@ function App() {
   }, [isAuthenticated, deviceId, tenantId]);
 
   // LiveKit CCTV Stream
+  const activeRoomRef = useRef<Room | null>(null);
+
   const startLiveCCTV = async () => {
     if (!isAuthenticated || !tenantId) return;
+
+    if (activeRoomRef.current) {
+      try {
+        activeRoomRef.current.disconnect();
+      } catch (e) {}
+      activeRoomRef.current = null;
+    }
+
     try {
+      setCctvError("");
       const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true&name=${encodeURIComponent(employeeName)}`);
       const data = await res.json();
       if (data.token && data.url) {
-        const room = new Room();
+        const room = new Room({
+          adaptiveStream: false,
+          dynacast: false,
+        });
+        activeRoomRef.current = room;
         setRoomRef(room);
+
+        room.on(RoomEvent.Disconnected, () => {
+          console.log("LiveKit disconnected, reconnecting in 5s...");
+          setIsBroadcasting(false);
+          if (activeRoomRef.current === room) {
+            activeRoomRef.current = null;
+            setTimeout(() => {
+              if (isAuthenticated && tenantId) {
+                startLiveCCTV();
+              }
+            }, 5000);
+          }
+        });
+
+        room.on(RoomEvent.Reconnecting, () => {
+          console.log("LiveKit reconnecting...");
+        });
+
+        room.on(RoomEvent.Reconnected, () => {
+          console.log("LiveKit reconnected!");
+          setIsBroadcasting(true);
+        });
+
         await room.connect(data.url, data.token);
 
         try {
           // Bypassing WebKit getDisplayMedia by creating a custom Canvas stream driven by Rust!
-          // Get the first frame to initialize the exact resolution of the screen
+          let canvas = document.getElementById("cctv-hidden-canvas") as HTMLCanvasElement;
+          if (!canvas) {
+            canvas = document.createElement("canvas");
+            canvas.id = "cctv-hidden-canvas";
+            canvas.style.position = "fixed";
+            canvas.style.bottom = "10px";
+            canvas.style.right = "10px";
+            canvas.style.width = "200px";
+            canvas.style.height = "auto";
+            canvas.style.zIndex = "-9999";
+            canvas.style.opacity = "1";
+            canvas.style.pointerEvents = "none";
+            document.body.appendChild(canvas);
+          }
+
           const firstScreenshot = await invoke<Screenshot>("take_screenshot");
           const firstImg = new Image();
           await new Promise((resolve, reject) => {
@@ -161,26 +213,13 @@ function App() {
             firstImg.src = firstScreenshot.base64_image;
           });
 
-          // WebKit aggressively freezes any canvas that is 1x1 pixel or transparent!
-          // We MUST make it a reasonable size and opacity: 1, but we can hide it behind the main UI.
-          const canvas = document.createElement("canvas");
-          canvas.width = firstImg.width;
-          canvas.height = firstImg.height;
-          canvas.style.position = "fixed";
-          canvas.style.bottom = "10px";
-          canvas.style.right = "10px";
-          canvas.style.width = "200px";
-          canvas.style.height = "auto";
-          canvas.style.zIndex = "-9999"; // Hidden behind the root UI
-          canvas.style.opacity = "1";
-          canvas.style.pointerEvents = "none";
-          document.body.appendChild(canvas);
+          canvas.width = firstImg.width || 1280;
+          canvas.height = firstImg.height || 720;
           
           const ctx = canvas.getContext("2d");
           if (!ctx) throw new Error("Could not create canvas context");
           ctx.drawImage(firstImg, 0, 0);
 
-          // Use default captureStream (event-driven) because WebKit often freezes on fixed FPS streams
           const mediaStream = canvas.captureStream(); 
           const videoTrack = mediaStream.getVideoTracks()[0];
 
@@ -189,31 +228,33 @@ function App() {
           console.log("Started custom Rust-driven screen sharing");
           setIsBroadcasting(true);
 
-          // Push frames from Rust into the Canvas
+          // Push frames from Rust into the Canvas persistently
           const loop = async () => {
-            while (room.state === "connected") {
-              try {
-                const screenshot = await invoke<Screenshot>("take_screenshot");
-                const img = new Image();
-                
-                await new Promise((res, rej) => {
-                  img.onload = res;
-                  img.onerror = rej;
-                  img.src = screenshot.base64_image;
-                });
+            while (activeRoomRef.current === room) {
+              if (room.state === "connected") {
+                try {
+                  const screenshot = await invoke<Screenshot>("take_screenshot");
+                  const img = new Image();
+                  
+                  await new Promise((res, rej) => {
+                    img.onload = res;
+                    img.onerror = rej;
+                    img.src = screenshot.base64_image;
+                  });
 
-                if (canvas.width !== img.width) canvas.width = img.width;
-                if (canvas.height !== img.height) canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                
-                // Add a tiny pulsating green dot in the corner so you know the video stream itself is live
-                ctx.fillStyle = Date.now() % 1000 < 500 ? "#0f0" : "transparent";
-                ctx.beginPath();
-                ctx.arc(canvas.width - 20, 20, 10, 0, Math.PI * 2);
-                ctx.fill();
+                  if (canvas.width !== img.width) canvas.width = img.width;
+                  if (canvas.height !== img.height) canvas.height = img.height;
+                  ctx.drawImage(img, 0, 0);
+                  
+                  // Add a tiny pulsating green dot in the corner so you know the video stream itself is live
+                  ctx.fillStyle = Date.now() % 1000 < 500 ? "#0f0" : "transparent";
+                  ctx.beginPath();
+                  ctx.arc(canvas.width - 20, 20, 10, 0, Math.PI * 2);
+                  ctx.fill();
 
-              } catch (e) {
-                console.error("Frame dropped:", e);
+                } catch (e) {
+                  console.error("Frame dropped:", e);
+                }
               }
               // Throttle to roughly 2-3 FPS to prevent overloading the native Rust image encoder
               await new Promise(r => setTimeout(r, 400)); 
@@ -223,22 +264,32 @@ function App() {
 
         } catch (err: any) {
           setCctvError("SCREEN SHARE ERROR: " + err.message);
+          setTimeout(() => {
+            if (isAuthenticated && tenantId) startLiveCCTV();
+          }, 8000);
         }
       } else {
         setCctvError("LIVEKIT TOKEN ERROR: " + JSON.stringify(data));
+        setTimeout(() => {
+          if (isAuthenticated && tenantId) startLiveCCTV();
+        }, 10000);
       }
     } catch (err: any) {
       setCctvError("LIVEKIT API ERROR: " + err.message);
+      setTimeout(() => {
+        if (isAuthenticated && tenantId) startLiveCCTV();
+      }, 10000);
     }
   };
 
   useEffect(() => {
     return () => {
-      if (roomRef) {
-        roomRef.disconnect();
+      if (activeRoomRef.current) {
+        activeRoomRef.current.disconnect();
+        activeRoomRef.current = null;
       }
     };
-  }, [roomRef]);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated || screenshotInterval === 0) return;
