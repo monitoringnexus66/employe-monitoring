@@ -18,10 +18,10 @@ export async function POST(request: Request) {
     const { deviceId, tenantId, appName, windowTitle, durationSeconds, isIdle } = body;
 
     if (!deviceId || !tenantId || !appName) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400, headers: { 'Access-Control-Allow-Origin': '*' } });
     }
 
-    await prisma.device.update({
+    await prisma.device.updateMany({
       where: { id: deviceId },
       data: { lastPing: new Date() }
     });
