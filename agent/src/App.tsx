@@ -23,7 +23,6 @@ function App() {
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
-  const [roomRef, setRoomRef] = useState<Room | null>(null);
   const [cctvError, setCctvError] = useState("");
 
   const [tenantId, setTenantId] = useState("");
@@ -162,7 +161,6 @@ function App() {
           dynacast: false,
         });
         activeRoomRef.current = room;
-        setRoomRef(room);
 
         room.on(RoomEvent.Disconnected, () => {
           console.log("LiveKit disconnected, reconnecting in 5s...");
