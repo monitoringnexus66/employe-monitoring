@@ -235,12 +235,12 @@ function App() {
             firstImg.src = firstScreenshot.base64_image;
           });
 
-          canvas.width = firstImg.width || 1280;
-          canvas.height = firstImg.height || 720;
+          canvas.width = firstImg.width || 1920;
+          canvas.height = firstImg.height || 1080;
           
           const ctx = canvas.getContext("2d");
           if (!ctx) throw new Error("Could not create canvas context");
-          ctx.drawImage(firstImg, 0, 0);
+          ctx.drawImage(firstImg, 0, 0, canvas.width, canvas.height);
 
           const mediaStream = canvas.captureStream(); 
           const videoTrack = mediaStream.getVideoTracks()[0];
@@ -264,9 +264,12 @@ function App() {
                     img.src = screenshot.base64_image;
                   });
 
-                  if (canvas.width !== img.width) canvas.width = img.width;
-                  if (canvas.height !== img.height) canvas.height = img.height;
-                  ctx.drawImage(img, 0, 0);
+                  if (canvas.width !== img.width || canvas.height !== img.height) {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                  }
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   
                   // Add a tiny pulsating green dot in the corner so you know the video stream itself is live
                   ctx.fillStyle = Date.now() % 1000 < 500 ? "#0f0" : "transparent";
@@ -364,10 +367,25 @@ function App() {
           className="btn btn-primary"
           style={{ width: "100%", padding: "0.75rem", fontSize: "0.95rem" }}
         >
-          🔐 Grant Screen Permission
+          🔐 Open System Settings
         </button>
 
-        <p style={{ marginTop: "1rem", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+        <button
+          onClick={() => setHasScreenPermission(true)}
+          style={{ 
+            marginTop: "0.75rem", 
+            background: "none", 
+            border: "none", 
+            color: "#60a5fa", 
+            fontSize: "0.85rem", 
+            cursor: "pointer",
+            textDecoration: "underline"
+          }}
+        >
+          I've toggled it ON → Continue to Login
+        </button>
+
+        <p style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
           Checking permission in background...
         </p>
       </main>

@@ -97,9 +97,10 @@ fn take_screenshot() -> Result<ScreenshotResponse, String> {
     
     let mut dynamic_image = image::DynamicImage::ImageRgba8(combined_image);
     
-    // Resize if width > 1920 to keep payload very small (bypasses Vercel 4.5MB limit)
+    // Proportional resize if width > 1920 to maintain exact native display aspect ratio (16:10, 16:9, etc)
     if dynamic_image.width() > 1920 {
-        dynamic_image = dynamic_image.resize(1920, 1080, image::imageops::FilterType::Triangle);
+        let new_height = ((dynamic_image.height() as f32) * (1920.0 / (dynamic_image.width() as f32))) as u32;
+        dynamic_image = dynamic_image.resize_exact(1920, new_height, image::imageops::FilterType::Triangle);
     }
     
     let mut buffer = std::io::Cursor::new(Vec::new());
