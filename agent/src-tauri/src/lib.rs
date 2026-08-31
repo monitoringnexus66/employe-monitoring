@@ -1,10 +1,47 @@
 use serde::Serialize;
 use base64::{Engine as _, engine::general_purpose};
 
+#[cfg(target_os = "macos")]
+#[link(name = "CoreGraphics", kind = "framework")]
+extern "C" {
+    fn CGRequestScreenCaptureAccess() -> bool;
+    fn CGPreflightScreenCaptureAccess() -> bool;
+}
+
 #[derive(Serialize)]
 struct ActiveAppResponse {
     app_name: String,
     window_title: String,
+}
+
+#[tauri::command]
+fn check_screen_permission() -> bool {
+    #[cfg(target_os = "macos")]
+    unsafe {
+        CGPreflightScreenCaptureAccess()
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        true
+    }
+}
+
+#[tauri::command]
+fn request_screen_permission() -> bool {
+    #[cfg(target_os = "macos")]
+    {
+        unsafe {
+            CGRequestScreenCaptureAccess();
+        }
+        let _ = std::process::Command::new("open")
+            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")
+            .spawn();
+        true
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        true
+    }
 }
 
 #[derive(Serialize)]
@@ -81,7 +118,12 @@ fn take_screenshot() -> Result<ScreenshotResponse, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_active_app, take_screenshot])
+        .invoke_handler(tauri::generate_handler![
+            get_active_app, 
+            take_screenshot, 
+            check_screen_permission, 
+            request_screen_permission
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

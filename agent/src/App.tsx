@@ -32,9 +32,33 @@ function App() {
   const [activeWorkspaceName, setActiveWorkspaceName] = useState("");
   const [screenshotInterval, setScreenshotInterval] = useState(60);
 
-  // Branding State
   const [appName, setAppName] = useState("chiiOS");
   const [appLogo, setAppLogo] = useState<string | null>(null);
+
+  // macOS Screen Permission State
+  const [hasScreenPermission, setHasScreenPermission] = useState(true);
+
+  useEffect(() => {
+    const checkPerm = async () => {
+      try {
+        const granted = await invoke<boolean>("check_screen_permission");
+        setHasScreenPermission(granted);
+      } catch (e) {
+        console.error("Failed to check permission:", e);
+      }
+    };
+    checkPerm();
+    const interval = setInterval(checkPerm, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleRequestPermission = async () => {
+    try {
+      await invoke("request_screen_permission");
+    } catch (e) {
+      console.error("Failed to request permission:", e);
+    }
+  };
 
   useEffect(() => {
     // Fetch Global Platform Branding
@@ -314,6 +338,41 @@ function App() {
     const interval = setInterval(fetchScreenshot, screenshotInterval * 1000);
     return () => clearInterval(interval);
   }, [isAuthenticated, deviceId, tenantId, screenshotInterval]);
+
+  if (!hasScreenPermission) {
+    return (
+      <main className="app-container" style={{ textAlign: "center", padding: "1.5rem" }}>
+        <div className="header">
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>🛡️</div>
+          <h1>Permission Required</h1>
+          <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginTop: "0.25rem" }}>
+            macOS requires permission to capture screen activity and CCTV.
+          </p>
+        </div>
+
+        <div className="glass-card" style={{ textAlign: "left", padding: "1rem", margin: "1.25rem 0" }}>
+          <p style={{ fontWeight: "600", color: "white", margin: "0 0 0.5rem 0", fontSize: "0.9rem" }}>Quick 1-Click Setup:</p>
+          <ol style={{ paddingLeft: "1.2rem", margin: "0", color: "#bbb", fontSize: "0.8rem", lineHeight: "1.6" }}>
+            <li>Click <strong>Grant Permission</strong> below.</li>
+            <li>Toggle <strong>{appName} Agent</strong> to <strong style={{ color: "#4ade80" }}>ON</strong> in Settings.</li>
+            <li>This window will automatically continue!</li>
+          </ol>
+        </div>
+
+        <button 
+          onClick={handleRequestPermission}
+          className="btn btn-primary"
+          style={{ width: "100%", padding: "0.75rem", fontSize: "0.95rem" }}
+        >
+          🔐 Grant Screen Permission
+        </button>
+
+        <p style={{ marginTop: "1rem", fontSize: "0.75rem", color: "var(--text-secondary)" }}>
+          Checking permission in background...
+        </p>
+      </main>
+    );
+  }
 
   if (!isAuthenticated && workspaces.length > 1) {
     return (

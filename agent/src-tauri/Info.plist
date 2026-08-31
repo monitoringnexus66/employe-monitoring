@@ -2,11 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>NSCameraUsageDescription</key>
-  <string>Required to share screen in CCTV mode</string>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>Required to share screen in CCTV mode</string>
-  <key>NSScreenCaptureUsageDescription</key>
-  <string>Required to share screen in CCTV mode</string>
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>chiiOs Agent requires screen recording access to monitor workplace activity and provide live monitoring.</string>
 </dict>
 </plist>
