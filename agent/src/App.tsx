@@ -300,10 +300,12 @@ function App() {
         }, 10000);
       }
     } catch (err: any) {
-      setCctvError("LIVEKIT API ERROR: " + err.message);
+      if (!err.message?.includes("Client initiated disconnect") && !err.message?.includes("client disconnected")) {
+        setCctvError("LIVEKIT API ERROR: " + err.message);
+      }
       setTimeout(() => {
         if (isAuthenticated && tenantId) startLiveCCTV();
-      }, 10000);
+      }, 5000);
     }
   };
 
