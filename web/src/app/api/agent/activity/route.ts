@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { isCctvActiveForTenant } from '@/app/api/livekit/heartbeat/route';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -53,10 +54,14 @@ export async function POST(request: Request) {
        }
     }
 
+    // Check if an admin is currently viewing the Live CCTV page
+    const isCctvRequested = isCctvActiveForTenant(tenantId);
+
     return NextResponse.json({ 
       success: true, 
       activityId: activity.id,
-      screenshotInterval
+      screenshotInterval,
+      isCctvRequested
     }, { headers: { 'Access-Control-Allow-Origin': '*' } });
   } catch (error) {
     console.error('Activity log error:', error);

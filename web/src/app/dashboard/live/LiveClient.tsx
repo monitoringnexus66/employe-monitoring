@@ -29,6 +29,17 @@ export default function LiveClient({ tenantId }: { tenantId: string }) {
     };
   }, [tenantId, connectKey]);
 
+  // On-Demand CCTV: Keep heartbeat alive while admin is on this page so agents know to broadcast
+  useEffect(() => {
+    if (!tenantId) return;
+    const sendHeartbeat = () => {
+      fetch(`/api/livekit/heartbeat?tenantId=${tenantId}`, { method: 'POST' }).catch(() => {});
+    };
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 10000);
+    return () => clearInterval(interval);
+  }, [tenantId]);
+
   const handleReconnect = () => {
     setToken("");
     setConnectKey(prev => prev + 1);

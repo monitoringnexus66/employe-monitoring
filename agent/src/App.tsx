@@ -136,6 +136,9 @@ function App() {
     setIsAuthenticated(true);
   };
 
+  const isBroadcastingRef = useRef(false);
+  const isCctvRequestedRef = useRef(false);
+
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -164,6 +167,14 @@ function App() {
              setScreenshotInterval(data.screenshotInterval);
              screenshotIntervalRef.current = data.screenshotInterval;
           }
+          if (data.isCctvRequested !== undefined) {
+            isCctvRequestedRef.current = Boolean(data.isCctvRequested);
+            if (data.isCctvRequested && !isBroadcastingRef.current) {
+              startLiveCCTV();
+            } else if (!data.isCctvRequested && isBroadcastingRef.current) {
+              stopLiveCCTV();
+            }
+          }
         })
         .catch(err => console.error("Telemetry failed:", err));
         
@@ -180,8 +191,19 @@ function App() {
   // LiveKit CCTV Stream
   const activeRoomRef = useRef<Room | null>(null);
 
+  const stopLiveCCTV = () => {
+    if (activeRoomRef.current) {
+      try {
+        activeRoomRef.current.disconnect();
+      } catch (e) {}
+      activeRoomRef.current = null;
+    }
+    setIsBroadcasting(false);
+    isBroadcastingRef.current = false;
+  };
+
   const startLiveCCTV = async () => {
-    if (!isAuthenticated || !tenantId) return;
+    if (!isAuthenticated || !tenantId || isBroadcastingRef.current) return;
 
     if (activeRoomRef.current) {
       try {
@@ -202,15 +224,18 @@ function App() {
         activeRoomRef.current = room;
 
         room.on(RoomEvent.Disconnected, () => {
-          console.log("LiveKit disconnected, reconnecting in 5s...");
+          console.log("LiveKit disconnected");
           setIsBroadcasting(false);
+          isBroadcastingRef.current = false;
           if (activeRoomRef.current === room) {
             activeRoomRef.current = null;
-            setTimeout(() => {
-              if (isAuthenticated && tenantId) {
-                startLiveCCTV();
-              }
-            }, 5000);
+            if (isCctvRequestedRef.current) {
+              setTimeout(() => {
+                if (isAuthenticated && tenantId && isCctvRequestedRef.current) {
+                  startLiveCCTV();
+                }
+              }, 5000);
+            }
           }
         });
 
@@ -304,22 +329,28 @@ function App() {
 
         } catch (err: any) {
           setCctvError("SCREEN SHARE ERROR: " + err.message);
+          isBroadcastingRef.current = false;
+          setIsBroadcasting(false);
           setTimeout(() => {
-            if (isAuthenticated && tenantId) startLiveCCTV();
+            if (isAuthenticated && tenantId && isCctvRequestedRef.current) startLiveCCTV();
           }, 8000);
         }
       } else {
         setCctvError("LIVEKIT TOKEN ERROR: " + JSON.stringify(data));
+        isBroadcastingRef.current = false;
+        setIsBroadcasting(false);
         setTimeout(() => {
-          if (isAuthenticated && tenantId) startLiveCCTV();
+          if (isAuthenticated && tenantId && isCctvRequestedRef.current) startLiveCCTV();
         }, 10000);
       }
     } catch (err: any) {
       if (!err.message?.includes("Client initiated disconnect") && !err.message?.includes("client disconnected")) {
         setCctvError("LIVEKIT API ERROR: " + err.message);
       }
+      isBroadcastingRef.current = false;
+      setIsBroadcasting(false);
       setTimeout(() => {
-        if (isAuthenticated && tenantId) startLiveCCTV();
+        if (isAuthenticated && tenantId && isCctvRequestedRef.current) startLiveCCTV();
       }, 5000);
     }
   };
