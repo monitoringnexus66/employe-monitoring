@@ -1,16 +1,17 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const accountId = process.env.R2_ACCOUNT_ID;
 const accessKeyId = process.env.R2_ACCESS_KEY_ID;
 const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-const bucketName = process.env.R2_BUCKET_NAME;
+const bucketName = process.env.R2_BUCKET_NAME || "employe-screenshots";
 const publicUrl = process.env.R2_PUBLIC_URL;
 
 export const isR2Configured = Boolean(
-  accountId && accessKeyId && secretAccessKey && bucketName
+  accountId && accessKeyId && secretAccessKey
 );
 
-const r2Client = isR2Configured
+export const r2Client = isR2Configured
   ? new S3Client({
       region: "auto",
       endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
@@ -23,7 +24,7 @@ const r2Client = isR2Configured
 
 /**
  * Uploads a base64 encoded image string directly to Cloudflare R2 bucket.
- * Returns the public image URL, or null if R2 is not configured or upload fails.
+ * Returns the image URL (public or signed), or null if R2 is not configured or upload fails.
  */
 export async function uploadScreenshotToR2(
   base64Image: string,
@@ -53,7 +54,12 @@ export async function uploadScreenshotToR2(
       return `${cleanPublicUrl}/${filename}`;
     }
 
-    return `https://${bucketName}.${accountId}.r2.cloudflarestorage.com/${filename}`;
+    // Generate a long-lived pre-signed URL (7 days) if public access subdomain is not yet set
+    const getCommand = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: filename,
+    });
+    return await getSignedUrl(r2Client, getCommand, { expiresIn: 60 * 60 * 24 * 7 });
   } catch (error) {
     console.error("Cloudflare R2 Upload Error:", error);
     return null;
