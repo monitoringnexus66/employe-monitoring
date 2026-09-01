@@ -138,6 +138,7 @@ function App() {
 
   const isBroadcastingRef = useRef(false);
   const isCctvRequestedRef = useRef(false);
+  const inactiveCctvCountRef = useRef(0);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -169,10 +170,17 @@ function App() {
           }
           if (data.isCctvRequested !== undefined) {
             isCctvRequestedRef.current = Boolean(data.isCctvRequested);
-            if (data.isCctvRequested && !isBroadcastingRef.current) {
-              startLiveCCTV();
-            } else if (!data.isCctvRequested && isBroadcastingRef.current) {
-              stopLiveCCTV();
+            if (data.isCctvRequested) {
+              inactiveCctvCountRef.current = 0;
+              if (!isBroadcastingRef.current) {
+                startLiveCCTV();
+              }
+            } else {
+              inactiveCctvCountRef.current += 1;
+              // Only disconnect after 3 consecutive false signals (15s grace period)
+              if (inactiveCctvCountRef.current >= 3 && isBroadcastingRef.current) {
+                stopLiveCCTV();
+              }
             }
           }
         })

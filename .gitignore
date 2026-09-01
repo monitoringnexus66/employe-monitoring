@@ -9,3 +9,4 @@ deploy.zip
 web/.vercel/
 agent/src-tauri/target/
 .vercel
+.env*

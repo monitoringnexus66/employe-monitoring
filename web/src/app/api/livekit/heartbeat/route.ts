@@ -1,28 +1,5 @@
 import { NextResponse } from 'next/server';
-
-// Global presence tracker in serverless / edge runtime
-declare global {
-  var __activeLiveKitViewers: Record<string, number> | undefined;
-}
-
-if (!global.__activeLiveKitViewers) {
-  global.__activeLiveKitViewers = {};
-}
-
-export function markTenantViewing(tenantId: string) {
-  if (!global.__activeLiveKitViewers) {
-    global.__activeLiveKitViewers = {};
-  }
-  global.__activeLiveKitViewers[tenantId] = Date.now();
-}
-
-export function isCctvActiveForTenant(tenantId: string): boolean {
-  if (!global.__activeLiveKitViewers) return false;
-  const lastPing = global.__activeLiveKitViewers[tenantId];
-  if (!lastPing) return false;
-  // Active if pinged in the last 30 seconds
-  return Date.now() - lastPing < 30000;
-}
+import prisma from '@/lib/prisma';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -44,7 +21,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing tenantId' }, { status: 400 });
     }
 
-    markTenantViewing(tenantId);
+    // Persist heartbeat directly into database so all serverless instances stay synchronized
+    await prisma.tenant.updateMany({
+      where: { id: tenantId },
+      data: { lastLiveViewerPing: new Date() }
+    });
 
     return NextResponse.json({
       success: true,

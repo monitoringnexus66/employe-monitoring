@@ -62,6 +62,7 @@ model Tenant {
   blurScreenshots           Boolean  @default(false)
   timezone                  String   @default("UTC")
   logoBase64                String?
+  lastLiveViewerPing        DateTime?
 
   // Package Relation
   packageId          String?

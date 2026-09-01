@@ -54,8 +54,15 @@ export async function POST(request: Request) {
        }
     }
 
-    // Check if an admin is currently viewing the Live CCTV page
-    const isCctvRequested = isCctvActiveForTenant(tenantId);
+    // Check if an admin is currently viewing the Live CCTV page (heartbeat within 45s)
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { lastLiveViewerPing: true }
+    });
+
+    const isCctvRequested = tenant?.lastLiveViewerPing 
+      ? (Date.now() - new Date(tenant.lastLiveViewerPing).getTime() < 45000)
+      : false;
 
     return NextResponse.json({ 
       success: true, 
