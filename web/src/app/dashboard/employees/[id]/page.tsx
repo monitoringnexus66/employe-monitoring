@@ -8,6 +8,7 @@ import CaptureSettings from "./CaptureSettings";
 import DatePickerFilter from "./DatePickerFilter";
 import DeleteEmployeeButton from "./DeleteEmployeeButton";
 import JobDescriptionEditor from "./JobDescriptionEditor";
+import ActivityTimeline from "./ActivityTimeline";
 
 export const dynamic = 'force-dynamic';
 
@@ -204,33 +205,7 @@ export default async function EmployeeProfilePage({ params, searchParams }: { pa
           <ScreenshotGallery screenshots={screenshots} />
 
           {/* Activity Timeline */}
-          <div className="glass-card rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-               <Clock className="w-5 h-5 text-green-400" /> Recent Activity Timeline
-            </h2>
-            
-            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent">
-               {logs.slice(0, 20).map(log => (
-                 <div key={log.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                   <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 bg-secondary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative z-10">
-                     <div className={`w-3 h-3 rounded-full ${log.isIdle ? 'bg-yellow-500' : 'bg-green-500'}`}></div>
-                   </div>
-                   
-                   <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
-                     <div className="flex items-center justify-between mb-1">
-                       <span className="text-sm font-bold text-blue-400">{log.appName}</span>
-                       <span className="text-xs text-muted-foreground">{new Date(log.timestamp).toLocaleTimeString()}</span>
-                     </div>
-                     <p className="text-sm text-gray-300 leading-snug">{log.windowTitle}</p>
-                   </div>
-                 </div>
-               ))}
-               
-               {logs.length === 0 && (
-                 <p className="text-center text-muted-foreground py-8 relative z-10">No recent activity.</p>
-               )}
-            </div>
-          </div>
+          <ActivityTimeline logs={logs} />
         </div>
 
       </div>
