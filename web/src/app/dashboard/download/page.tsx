@@ -22,7 +22,7 @@ export default function DownloadPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.7/chiiOs.Agent_0.1.7_universal.dmg" target="_blank" rel="noopener noreferrer" className="block">
+          <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.8/chiiOs.Agent_0.1.8_universal.dmg" target="_blank" rel="noopener noreferrer" className="block">
             <div className="h-full flex flex-col items-center justify-center p-6 rounded-xl bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer group text-center gap-3">
               <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <DownloadIcon className="w-6 h-6 text-blue-400" />
@@ -34,7 +34,7 @@ export default function DownloadPage() {
             </div>
           </a>
           
-          <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.7/chiiOs.Agent_0.1.7_x64-setup.exe" target="_blank" rel="noopener noreferrer" className="block">
+          <a href="https://github.com/monitoringnexus66/employe-monitoring/releases/download/app-v0.1.8/chiiOs.Agent_0.1.8_x64-setup.exe" target="_blank" rel="noopener noreferrer" className="block">
             <div className="h-full flex flex-col items-center justify-center p-6 rounded-xl bg-secondary/50 hover:bg-secondary border border-white/10 transition-colors cursor-pointer group text-center gap-3">
               <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <DownloadIcon className="w-6 h-6 text-purple-400" />

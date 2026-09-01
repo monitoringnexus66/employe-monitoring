@@ -75,24 +75,30 @@ fn take_screenshot() -> Result<ScreenshotResponse, String> {
         return Err("No monitors found".to_string());
     }
 
+    let mut captured_frames = Vec::new();
     let mut total_width = 0;
     let mut max_height = 0;
 
     for monitor in &monitors {
-        total_width += monitor.width().unwrap_or(0);
-        if monitor.height().unwrap_or(0) > max_height {
-            max_height = monitor.height().unwrap_or(0);
+        if let Ok(rgba_image) = monitor.capture_image() {
+            total_width += rgba_image.width();
+            if rgba_image.height() > max_height {
+                max_height = rgba_image.height();
+            }
+            captured_frames.push(rgba_image);
         }
+    }
+
+    if captured_frames.is_empty() || total_width == 0 || max_height == 0 {
+        return Err("Failed to capture any monitor frame".to_string());
     }
 
     let mut combined_image = image::RgbaImage::new(total_width, max_height);
     let mut current_x = 0;
 
-    for monitor in &monitors {
-        if let Ok(rgba_image) = monitor.capture_image() {
-            image::imageops::overlay(&mut combined_image, &rgba_image, current_x as i64, 0);
-            current_x += monitor.width().unwrap_or(0);
-        }
+    for frame in &captured_frames {
+        image::imageops::overlay(&mut combined_image, frame, current_x as i64, 0);
+        current_x += frame.width();
     }
     
     let mut dynamic_image = image::DynamicImage::ImageRgba8(combined_image);

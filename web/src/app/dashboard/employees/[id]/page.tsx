@@ -24,7 +24,7 @@ export default async function EmployeeProfilePage({ params, searchParams }: { pa
       memberships: { some: { tenantId: session.tenantId, role: "EMPLOYEE" } }
     },
     include: { 
-      devices: true,
+      devices: { orderBy: { lastPing: 'desc' } },
       memberships: { where: { tenantId: session.tenantId } }
     }
   });
