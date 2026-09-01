@@ -32,6 +32,10 @@ function App() {
   const [activeWorkspaceName, setActiveWorkspaceName] = useState("");
   const [screenshotInterval, setScreenshotInterval] = useState(60);
 
+  const deviceIdRef = useRef("");
+  const tenantIdRef = useRef("");
+  const screenshotIntervalRef = useRef(60);
+
   const [appName, setAppName] = useState("chiiOS");
   const [appLogo, setAppLogo] = useState<string | null>(null);
 
@@ -106,11 +110,12 @@ function App() {
       }
 
       setDeviceId(data.deviceId);
+      deviceIdRef.current = data.deviceId;
       setEmployeeName(data.name);
       setWorkspaces(data.workspaces);
       
       if (data.workspaces.length === 1) {
-         selectWorkspace(data.workspaces[0]);
+         selectWorkspace(data.workspaces[0], data.deviceId);
       }
     } catch (err: any) {
       setLoginError(err.message);
@@ -119,10 +124,15 @@ function App() {
     }
   };
 
-  const selectWorkspace = (workspace: Workspace) => {
+  const selectWorkspace = (workspace: Workspace, explicitDeviceId?: string) => {
+    const devId = explicitDeviceId || deviceIdRef.current || deviceId;
+    setDeviceId(devId);
+    deviceIdRef.current = devId;
     setTenantId(workspace.id);
+    tenantIdRef.current = workspace.id;
     setActiveWorkspaceName(workspace.name);
     setScreenshotInterval(workspace.screenshotInterval);
+    screenshotIntervalRef.current = workspace.screenshotInterval;
     setIsAuthenticated(true);
   };
 
@@ -130,14 +140,18 @@ function App() {
     if (!isAuthenticated) return;
 
     const fetchActiveWindow = async () => {
+      const activeDevId = deviceIdRef.current || deviceId;
+      const activeTenId = tenantIdRef.current || tenantId;
+      if (!activeDevId || !activeTenId) return;
+
       try {
         const app = await invoke<ActiveApp>("get_active_app");
         fetch('https://employe-monitoring.vercel.app/api/agent/activity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            deviceId,
-            tenantId,
+            deviceId: activeDevId,
+            tenantId: activeTenId,
             appName: app.app_name,
             windowTitle: app.window_title,
             durationSeconds: 5,
@@ -148,6 +162,7 @@ function App() {
         .then(data => {
           if (data.screenshotInterval !== undefined) {
              setScreenshotInterval(data.screenshotInterval);
+             screenshotIntervalRef.current = data.screenshotInterval;
           }
         })
         .catch(err => console.error("Telemetry failed:", err));
@@ -322,14 +337,18 @@ function App() {
     if (!isAuthenticated || screenshotInterval === 0) return;
 
     const fetchScreenshot = async () => {
+      const activeDevId = deviceIdRef.current || deviceId;
+      const activeTenId = tenantIdRef.current || tenantId;
+      if (!activeDevId || !activeTenId) return;
+
       try {
         const screenshot = await invoke<Screenshot>("take_screenshot");
         fetch('https://employe-monitoring.vercel.app/api/agent/screenshot', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            deviceId,
-            tenantId,
+            deviceId: activeDevId,
+            tenantId: activeTenId,
             s3Url: screenshot.base64_image,
             activityLevel: 100
           })

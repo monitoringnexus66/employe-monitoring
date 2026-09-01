@@ -34,11 +34,18 @@ export default async function EmployeeProfilePage({ params, searchParams }: { pa
   }
 
   // Determine Date Range
-  const selectedDate = date ? new Date(date) : new Date();
-  const startOfDay = new Date(selectedDate);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(selectedDate);
-  endOfDay.setHours(23, 59, 59, 999);
+  let startOfDay: Date;
+  let endOfDay: Date;
+
+  if (date && date.includes('-')) {
+    const [year, month, day] = date.split('-').map(Number);
+    startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+  } else {
+    const now = new Date();
+    startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+  }
 
   // Get device IDs to fetch logs
   const deviceIds = user.devices.map(d => d.id);
