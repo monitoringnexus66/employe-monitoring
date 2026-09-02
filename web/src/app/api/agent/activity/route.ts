@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { isCctvActiveForTenant } from '@/app/api/livekit/heartbeat/route';
 
 export async function OPTIONS() {
   return new Response(null, {
