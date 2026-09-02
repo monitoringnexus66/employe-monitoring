@@ -177,8 +177,8 @@ function App() {
               }
             } else {
               inactiveCctvCountRef.current += 1;
-              // Only disconnect after 3 consecutive false signals (15s grace period)
-              if (inactiveCctvCountRef.current >= 3 && isBroadcastingRef.current) {
+              // Only disconnect after 12 consecutive false signals (60s grace period)
+              if (inactiveCctvCountRef.current >= 12 && isBroadcastingRef.current) {
                 stopLiveCCTV();
               }
             }
@@ -230,6 +230,7 @@ function App() {
         const room = new Room({
           adaptiveStream: false,
           dynacast: false,
+          autoSubscribe: false,
         });
         activeRoomRef.current = room;
 

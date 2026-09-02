@@ -48,7 +48,8 @@ export async function GET(req: Request) {
       roomJoin: true,
       room,
       canPublish: isAgent,
-      canSubscribe: !isAgent,
+      canSubscribe: true,
+      canPublishData: true,
     });
 
     return NextResponse.json({ token: await at.toJwt(), url: wsUrl }, { headers: corsHeaders });
