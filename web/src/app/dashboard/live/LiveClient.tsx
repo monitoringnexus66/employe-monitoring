@@ -65,11 +65,6 @@ export default function LiveClient({ tenantId }: { tenantId: string }) {
       data-lk-theme="default"
       style={{ height: '70vh' }}
       className="glass-card rounded-xl overflow-hidden"
-      onDisconnected={handleReconnect}
-      onError={(err) => {
-        console.error("LiveKit room error:", err);
-        handleReconnect();
-      }}
     >
       <CCTVGrid onRefresh={handleReconnect} />
       <RoomAudioRenderer />

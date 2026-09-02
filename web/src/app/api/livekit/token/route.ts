@@ -19,6 +19,7 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const room = url.searchParams.get('room');
     const isAgent = url.searchParams.get('isAgent') === 'true';
+    const deviceId = url.searchParams.get('deviceId');
     const name = url.searchParams.get('name') || '';
 
     if (!room) {
@@ -33,7 +34,9 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Server misconfigured' }, { status: 500, headers: corsHeaders });
     }
 
-    const identity = isAgent ? `agent-${Math.random().toString(36).substring(7)}` : `admin-${session?.id || Math.random().toString(36).substring(7)}`;
+    const identity = isAgent 
+      ? (deviceId ? `agent-${deviceId}` : `agent-${Math.random().toString(36).substring(7)}`)
+      : `admin-${session?.id || Math.random().toString(36).substring(7)}`;
 
     const at = new AccessToken(apiKey, apiSecret, {
       identity,

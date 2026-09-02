@@ -222,7 +222,7 @@ function App() {
 
     try {
       setCctvError("");
-      const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true&name=${encodeURIComponent(employeeName)}`);
+      const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true&deviceId=${encodeURIComponent(deviceId)}&name=${encodeURIComponent(employeeName)}`);
       const data = await res.json();
       if (data.token && data.url) {
         const room = new Room({
@@ -283,6 +283,7 @@ function App() {
             firstImg.src = firstScreenshot.base64_image;
           });
 
+          // Set canvas dimensions once — never reassign width/height dynamically as it resets WebRTC track!
           canvas.width = firstImg.width || 1920;
           canvas.height = firstImg.height || 1080;
           
@@ -312,10 +313,6 @@ function App() {
                     img.src = screenshot.base64_image;
                   });
 
-                  if (canvas.width !== img.width || canvas.height !== img.height) {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                  }
                   ctx.clearRect(0, 0, canvas.width, canvas.height);
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                   
