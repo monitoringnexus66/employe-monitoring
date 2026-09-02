@@ -198,31 +198,33 @@ function App() {
 
   // LiveKit CCTV Stream
   const activeRoomRef = useRef<Room | null>(null);
+  const isConnectingCctvRef = useRef(false);
 
   const stopLiveCCTV = () => {
-    if (activeRoomRef.current) {
-      try {
-        activeRoomRef.current.disconnect();
-      } catch (e) {}
-      activeRoomRef.current = null;
-    }
-    setIsBroadcasting(false);
+    isConnectingCctvRef.current = false;
     isBroadcastingRef.current = false;
+    setIsBroadcasting(false);
+    if (activeRoomRef.current) {
+      const r = activeRoomRef.current;
+      activeRoomRef.current = null;
+      try {
+        r.disconnect();
+      } catch (e) {}
+    }
   };
 
   const startLiveCCTV = async () => {
-    if (!isAuthenticated || !tenantId || isBroadcastingRef.current) return;
-
-    if (activeRoomRef.current) {
-      try {
-        activeRoomRef.current.disconnect();
-      } catch (e) {}
-      activeRoomRef.current = null;
+    const activeTenId = tenantIdRef.current || tenantId;
+    const activeDevId = deviceIdRef.current || deviceId;
+    if (!isAuthenticated || !activeTenId || isBroadcastingRef.current || isConnectingCctvRef.current || activeRoomRef.current) {
+      return;
     }
+
+    isConnectingCctvRef.current = true;
 
     try {
       setCctvError("");
-      const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${tenantId}&isAgent=true&deviceId=${encodeURIComponent(deviceId)}&name=${encodeURIComponent(employeeName)}`);
+      const res = await fetch(`https://employe-monitoring.vercel.app/api/livekit/token?room=${activeTenId}&isAgent=true&deviceId=${encodeURIComponent(activeDevId)}&name=${encodeURIComponent(employeeName)}`);
       const data = await res.json();
       if (data.token && data.url) {
         const room = new Room({
@@ -233,17 +235,18 @@ function App() {
 
         room.on(RoomEvent.Disconnected, () => {
           console.log("LiveKit disconnected");
-          setIsBroadcasting(false);
-          isBroadcastingRef.current = false;
           if (activeRoomRef.current === room) {
             activeRoomRef.current = null;
-            if (isCctvRequestedRef.current) {
-              setTimeout(() => {
-                if (isAuthenticated && tenantId && isCctvRequestedRef.current) {
-                  startLiveCCTV();
-                }
-              }, 5000);
-            }
+          }
+          setIsBroadcasting(false);
+          isBroadcastingRef.current = false;
+          isConnectingCctvRef.current = false;
+          if (isCctvRequestedRef.current) {
+            setTimeout(() => {
+              if (isAuthenticated && activeTenId && isCctvRequestedRef.current) {
+                startLiveCCTV();
+              }
+            }, 5000);
           }
         });
 
@@ -254,6 +257,7 @@ function App() {
         room.on(RoomEvent.Reconnected, () => {
           console.log("LiveKit reconnected!");
           setIsBroadcasting(true);
+          isBroadcastingRef.current = true;
         });
 
         await room.connect(data.url, data.token);
@@ -297,6 +301,8 @@ function App() {
           await room.localParticipant.publishTrack(videoTrack, { source: Track.Source.ScreenShare });
           
           console.log("Started custom Rust-driven screen sharing");
+          isBroadcastingRef.current = true;
+          isConnectingCctvRef.current = false;
           setIsBroadcasting(true);
 
           // Push frames from Rust into the Canvas persistently
@@ -335,28 +341,26 @@ function App() {
         } catch (err: any) {
           setCctvError("SCREEN SHARE ERROR: " + err.message);
           isBroadcastingRef.current = false;
+          isConnectingCctvRef.current = false;
           setIsBroadcasting(false);
-          setTimeout(() => {
-            if (isAuthenticated && tenantId && isCctvRequestedRef.current) startLiveCCTV();
-          }, 8000);
+          if (activeRoomRef.current === room) {
+            try { room.disconnect(); } catch (e) {}
+            activeRoomRef.current = null;
+          }
         }
       } else {
         setCctvError("LIVEKIT TOKEN ERROR: " + JSON.stringify(data));
         isBroadcastingRef.current = false;
+        isConnectingCctvRef.current = false;
         setIsBroadcasting(false);
-        setTimeout(() => {
-          if (isAuthenticated && tenantId && isCctvRequestedRef.current) startLiveCCTV();
-        }, 10000);
       }
     } catch (err: any) {
       if (!err.message?.includes("Client initiated disconnect") && !err.message?.includes("client disconnected")) {
         setCctvError("LIVEKIT API ERROR: " + err.message);
       }
       isBroadcastingRef.current = false;
+      isConnectingCctvRef.current = false;
       setIsBroadcasting(false);
-      setTimeout(() => {
-        if (isAuthenticated && tenantId && isCctvRequestedRef.current) startLiveCCTV();
-      }, 5000);
     }
   };
 
