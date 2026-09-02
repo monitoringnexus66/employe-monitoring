@@ -230,7 +230,6 @@ function App() {
         const room = new Room({
           adaptiveStream: false,
           dynacast: false,
-          autoSubscribe: false,
         });
         activeRoomRef.current = room;
 
@@ -261,7 +260,9 @@ function App() {
           isBroadcastingRef.current = true;
         });
 
-        await room.connect(data.url, data.token);
+        await room.connect(data.url, data.token, {
+          autoSubscribe: false,
+        });
 
         try {
           // Bypassing WebKit getDisplayMedia by creating a custom Canvas stream driven by Rust!
