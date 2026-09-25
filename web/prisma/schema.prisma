@@ -37,10 +37,14 @@ model Package {
 }
 
 model SystemSettings {
-  id         String @id @default("global")
-  appName    String @default("NexusTrack")
-  logoBase64 String?
-  deepseekApiKey String?
+  id                      String    @id @default("global")
+  appName                 String    @default("NexusTrack")
+  logoBase64              String?
+  deepseekApiKey          String?
+  autoDeleteScreenshots   Boolean   @default(true)
+  screenshotRetentionDays Int       @default(30)
+  lastCleanupAt           DateTime?
+  lastDeletedCount        Int       @default(0)
 }
 
 model Tenant {

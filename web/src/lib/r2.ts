@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const accountId = process.env.R2_ACCOUNT_ID;
@@ -63,5 +63,53 @@ export async function uploadScreenshotToR2(
   } catch (error) {
     console.error("Cloudflare R2 Upload Error:", error);
     return null;
+  }
+}
+
+/**
+ * Extracts R2 object key from a screenshot URL
+ */
+export function extractR2KeyFromUrl(url: string): string | null {
+  if (!url || url.startsWith("data:")) return null;
+  
+  // Format: https://.../screenshots/tenantId/deviceId/timestamp.jpg or /screenshots/...
+  const match = url.match(/screenshots\/[^\s?#]+/);
+  if (match) {
+    return match[0];
+  }
+  return null;
+}
+
+/**
+ * Batch deletes screenshots from Cloudflare R2 bucket.
+ */
+export async function deleteScreenshotsFromR2(keys: string[]): Promise<number> {
+  if (!isR2Configured || !r2Client || !bucketName || keys.length === 0) {
+    return 0;
+  }
+
+  // Filter out any invalid keys
+  const validKeys = Array.from(new Set(keys.filter(Boolean)));
+  if (validKeys.length === 0) return 0;
+
+  let deletedCount = 0;
+  try {
+    // S3 DeleteObjectsCommand allows up to 1000 keys per batch
+    for (let i = 0; i < validKeys.length; i += 1000) {
+      const batch = validKeys.slice(i, i + 1000);
+      const command = new DeleteObjectsCommand({
+        Bucket: bucketName,
+        Delete: {
+          Objects: batch.map((Key) => ({ Key })),
+          Quiet: true,
+        },
+      });
+      await r2Client.send(command);
+      deletedCount += batch.length;
+    }
+    return deletedCount;
+  } catch (error) {
+    console.error("Cloudflare R2 Batch Delete Error:", error);
+    return deletedCount;
   }
 }

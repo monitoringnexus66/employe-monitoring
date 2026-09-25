@@ -21,7 +21,8 @@ export default function ApiKeyForm() {
             const res = await fetch("/api/superadmin/settings");
             if (res.ok) {
               const data = await res.json();
-              setApiKey(data.deepseekApiKey || "");
+              const settingsObj = data.settings || data;
+              setApiKey(settingsObj.deepseekApiKey || "");
             }
           }
         }

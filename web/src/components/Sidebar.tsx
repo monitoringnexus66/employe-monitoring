@@ -26,7 +26,7 @@ export function Sidebar({
       { name: "Packages", href: "/dashboard/superadmin/packages", icon: PackageOpen },
       { name: "Customers", href: "/dashboard/superadmin/customers", icon: Building2 },
       { name: "Branding", href: "/dashboard/superadmin/branding", icon: ImageIcon },
-      { name: "Settings", href: "/dashboard/settings", icon: Settings },
+      { name: "Settings & Storage", href: "/dashboard/superadmin/settings", icon: Settings },
       { name: "Security", href: "/dashboard/security", icon: ShieldCheck }
     ];
   } else if (role === "ADMIN") {
