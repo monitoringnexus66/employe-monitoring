@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Building2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 
 export default function CreateTenantModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +11,12 @@ export default function CreateTenantModal() {
   const [adminPassword, setAdminPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,9 +52,9 @@ export default function CreateTenantModal() {
         <Building2 className="w-4 h-4" /> Register Company
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#0f1115] border border-white/10 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+      {isOpen && mounted && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-[#131722] border border-white/10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <h2 className="text-lg font-semibold text-white">Register New Company</h2>
               <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white transition-colors">
@@ -62,18 +68,18 @@ export default function CreateTenantModal() {
                 <label className="block text-sm font-medium text-gray-300 mb-1">Company / Tenant Name</label>
                 <input 
                   required value={name} onChange={e => setName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors" 
+                  className="w-full bg-[#0B0F17] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" 
                   placeholder="Acme Corp" 
                 />
               </div>
               <div className="border-t border-white/5 pt-4 mt-2">
-                <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-semibold">Initial Admin Account</p>
+                <p className="text-xs text-slate-400 mb-3 uppercase tracking-wider font-semibold">Initial Admin Account</p>
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1">Admin Email</label>
                     <input 
                       required type="email" value={adminEmail} onChange={e => setAdminEmail(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors" 
+                      className="w-full bg-[#0B0F17] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" 
                       placeholder="admin@acme.com" 
                     />
                   </div>
@@ -81,7 +87,7 @@ export default function CreateTenantModal() {
                     <label className="block text-sm font-medium text-gray-300 mb-1">Admin Password</label>
                     <input 
                       required type="text" value={adminPassword} onChange={e => setAdminPassword(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors" 
+                      className="w-full bg-[#0B0F17] border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" 
                       placeholder="SecurePass123" 
                     />
                   </div>
@@ -91,20 +97,21 @@ export default function CreateTenantModal() {
               <div className="pt-4 flex gap-3">
                 <button 
                   type="button" onClick={() => setIsOpen(false)}
-                  className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg font-medium transition-colors"
+                  className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl font-medium transition-colors text-sm"
                 >
                   Cancel
                 </button>
                 <button 
                   disabled={loading} type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors"
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all text-sm"
                 >
                   {loading ? "Creating..." : "Create Tenant"}
                 </button>
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 
 export default function CreatePackageModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,12 +57,12 @@ export default function CreatePackageModal() {
         Create Package
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-secondary/90 border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
+      {isOpen && mounted && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="bg-[#131722] border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-muted-foreground transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -64,28 +70,28 @@ export default function CreatePackageModal() {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Package Name</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Package Name</label>
                 <input
                   type="text"
                   name="name"
                   required
                   placeholder="e.g. Starter Plan"
-                  className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-[#0B0F17] border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Max Accounts (Limit)</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Max Accounts (Limit)</label>
                 <input
                   type="number"
                   name="maxAccounts"
                   required
                   min="1"
                   placeholder="e.g. 5"
-                  className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-[#0B0F17] border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Monthly Price ($)</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Monthly Price ($)</label>
                 <input
                   type="number"
                   name="monthlyPrice"
@@ -93,10 +99,10 @@ export default function CreatePackageModal() {
                   min="0"
                   step="0.01"
                   placeholder="e.g. 49.99"
-                  className="w-full px-4 py-2 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-[#0B0F17] border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500 text-sm"
                 />
               </div>
-              <div className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <div className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                 <input
                   type="checkbox"
                   id="hasCCTV"
@@ -111,13 +117,14 @@ export default function CreatePackageModal() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-4 py-2 mt-4 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg disabled:opacity-50 transition-colors"
+                className="w-full px-4 py-2.5 mt-4 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-blue-600/20 disabled:opacity-50 transition-all"
               >
                 {loading ? "Creating..." : "Save Package"}
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
