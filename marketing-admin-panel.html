@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>chiiOS Admin Panel - Marketing Showcase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#0066ff',
+              600: '#0052cc',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 4px;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.95); }
+    }
+    .pulse-dot {
+      animation: pulse-subtle 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 min-h-screen p-4 sm:p-8 flex items-center justify-center text-slate-800 antialiased">
+
+  <!-- Marketing Mockup Window Container -->
+  <div class="w-full max-w-5xl bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden transition-all duration-300 hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.12)]">
+    
+    <!-- Mac Browser Top Header Bar -->
+    <div class="bg-slate-50/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center gap-3 select-none">
+      <!-- Traffic Lights -->
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-red-400 border border-red-500/20 inline-block"></span>
+        <span class="w-3 h-3 rounded-full bg-amber-400 border border-amber-500/20 inline-block"></span>
+        <span class="w-3 h-3 rounded-full bg-emerald-400 border border-emerald-500/20 inline-block"></span>
+      </div>
+
+      <!-- URL Pill Bar -->
+      <div class="flex-1 max-w-md mx-auto">
+        <div class="bg-white border border-slate-200/80 shadow-xs rounded-lg px-3 py-1 text-xs text-slate-500 flex items-center gap-2 font-mono justify-center">
+          <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span class="text-slate-400">https://</span><span class="text-slate-700 font-semibold">app.chiio-os.com</span><span class="text-slate-400">/dashboard/live</span>
+        </div>
+      </div>
+
+      <!-- Live Global Badge -->
+      <div class="hidden sm:flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-200 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wider uppercase">
+        <span class="w-2 h-2 rounded-full bg-red-500 pulse-dot"></span>
+        LIVE MONITOR
+      </div>
+    </div>
+
+    <!-- App Main Body Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-12 min-h-[560px]">
+      
+      <!-- Left Sidebar / Team Members -->
+      <div class="md:col-span-4 bg-slate-50/50 border-r border-slate-100 p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">TEAM MEMBERS</span>
+            <span class="text-xs bg-slate-200/60 text-slate-600 font-medium px-2 py-0.5 rounded-full" id="team-count">4 Online</span>
+          </div>
+
+          <!-- Team List Container -->
+          <div class="space-y-3" id="team-list">
+            <!-- Rendered Dynamically via JS -->
+          </div>
+        </div>
+
+        <div class="pt-4 mt-4 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-400">
+          <span>⚡ Auto-refresh: 5s</span>
+          <span class="text-brand-600 font-medium cursor-pointer hover:underline">Manage Team →</span>
+        </div>
+      </div>
+
+      <!-- Right Main Content Panel -->
+      <div class="md:col-span-8 p-6 lg:p-8 flex flex-col justify-between bg-white">
+        
+        <!-- Header Info Area -->
+        <div>
+          <div class="flex items-start justify-between pb-6 border-b border-slate-100">
+            <div>
+              <h2 class="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight" id="member-name">David Miller</h2>
+              <p class="text-sm font-medium text-slate-400 mt-0.5" id="member-role">Project Estimator</p>
+            </div>
+            
+            <div id="member-status-pill">
+              <!-- Status Pill -->
+            </div>
+          </div>
+
+          <!-- 3x2 Metric Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+            
+            <!-- Card 1: Productivity -->
+            <div class="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-xl p-4 transition-all duration-200">
+              <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase block">PRODUCTIVITY</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1 mb-3" id="metric-productivity">52%</div>
+              <div class="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                <div id="bar-productivity" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 52%"></div>
+              </div>
+            </div>
+
+            <!-- Card 2: Active Input -->
+            <div class="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-xl p-4 transition-all duration-200">
+              <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase block">ACTIVE INPUT</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1 mb-3" id="metric-input">40%</div>
+              <div class="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                <div id="bar-input" class="bg-blue-600 h-1.5 rounded-full transition-all duration-500" style="width: 40%"></div>
+              </div>
+            </div>
+
+            <!-- Card 3: Idle Time -->
+            <div class="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-xl p-4 transition-all duration-200">
+              <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase block">IDLE TIME</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1 mb-3" id="metric-idle">60%</div>
+              <div class="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                <div id="bar-idle" class="bg-slate-400 h-1.5 rounded-full transition-all duration-500" style="width: 60%"></div>
+              </div>
+            </div>
+
+            <!-- Card 4: Keystrokes -->
+            <div class="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-xl p-4 transition-all duration-200">
+              <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase block">KEYSTROKES</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1" id="metric-keystrokes">0/min</div>
+              <span class="text-[11px] text-slate-400 font-medium mt-1 block">Rolling 60s window</span>
+            </div>
+
+            <!-- Card 5: Click Velocity -->
+            <div class="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-xl p-4 transition-all duration-200">
+              <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase block">CLICK VELOCITY</span>
+              <div class="text-2xl font-extrabold text-slate-900 mt-1" id="metric-clicks">0/min</div>
+              <span class="text-[11px] text-slate-400 font-medium mt-1 block">Mouse interactions</span>
+            </div>
+
+            <!-- Card 6: Focus Level -->
+            <div class="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/60 rounded-xl p-4 transition-all duration-200">
+              <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase block">FOCUS LEVEL</span>
+              <div class="text-2xl font-extrabold mt-1" id="metric-focus">
+                <span class="text-red-500">Low</span>
+              </div>
+              <span class="text-[11px] text-slate-400 font-medium mt-1 block">AI Activity Score</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Bottom Live Activity Stream Log -->
+        <div class="mt-6 bg-slate-50/90 border border-slate-200/80 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[11px] font-bold tracking-wider text-slate-400 uppercase">LIVE ACTIVITY STREAM</span>
+            <div class="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+              Streaming Live
+            </div>
+          </div>
+          
+          <div class="font-mono text-xs text-slate-600 space-y-1.5 bg-white border border-slate-200/60 rounded-lg p-3 custom-scroll max-h-24 overflow-y-auto" id="log-container">
+            <!-- Logs injected dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Interactive Demo Logic -->
+  <script>
+    const team = [
+      {
+        id: 'david',
+        name: 'David Miller',
+        role: 'Project Estimator',
+        status: 'Idle',
+        statusColor: 'gray',
+        productivity: 52,
+        activeInput: 40,
+        idleTime: 60,
+        keystrokes: '0/min',
+        clicks: '0/min',
+        focus: 'Low',
+        focusColor: 'text-red-500',
+        activeApp: 'Adobe Acrobat - Site Estimate.pdf',
+        logs: [
+          '17:39:36 [SYS] Connecting to David Miller\'s workspace...',
+          '17:39:36 [SYS] Connection secure. App: Adobe Acrobat - Site Estimate.pdf'
+        ]
+      },
+      {
+        id: 'tyler',
+        name: 'Tyler Davis',
+        role: 'HVAC Specialist',
+        status: 'Active',
+        statusColor: 'green',
+        productivity: 94,
+        activeInput: 88,
+        idleTime: 12,
+        keystrokes: '148/min',
+        clicks: '72/min',
+        focus: 'Peak',
+        focusColor: 'text-emerald-600',
+        activeApp: 'AutoCAD 2026 - Central Ducting Design.dwg',
+        logs: [
+          '17:40:02 [SYS] Stream synchronized (60fps encrypted)',
+          '17:40:08 [APP] Focused: AutoCAD 2026 - Central Ducting Design.dwg',
+          '17:40:14 [AI] High focus pattern detected (Productivity +14%)'
+        ]
+      },
+      {
+        id: 'sarah',
+        name: 'Sarah Jenkins',
+        role: 'Electrician Journeyman',
+        status: 'Active',
+        statusColor: 'green',
+        productivity: 88,
+        activeInput: 79,
+        idleTime: 21,
+        keystrokes: '112/min',
+        clicks: '46/min',
+        focus: 'High',
+        focusColor: 'text-emerald-600',
+        activeApp: 'Bluebeam Revu - Floor 4 Electrical Layout.pdf',
+        logs: [
+          '17:39:50 [SYS] Worker stream verified',
+          '17:39:55 [APP] Focused: Bluebeam Revu - Floor 4 Electrical Layout.pdf',
+          '17:40:05 [TIME] 4.2 hrs logged today'
+        ]
+      },
+      {
+        id: 'marcus',
+        name: 'Marcus Vance',
+        role: 'Lead Plumber',
+        status: 'Dispatched',
+        statusColor: 'amber',
+        productivity: 76,
+        activeInput: 65,
+        idleTime: 35,
+        keystrokes: '42/min',
+        clicks: '28/min',
+        focus: 'Moderate',
+        focusColor: 'text-amber-500',
+        activeApp: 'ServiceTitan Mobile - Job #88412 Dispatch',
+        logs: [
+          '17:38:12 [GPS] Dispatch route assigned (Site A-12)',
+          '17:39:00 [APP] ServiceTitan Mobile - Job #88412 Dispatch',
+          '17:39:20 [SYS] Field telemetry sync active'
+        ]
+      }
+    ];
+
+    let selectedId = 'david';
+
+    function renderTeamList() {
+      const container = document.getElementById('team-list');
+      container.innerHTML = '';
+
+      team.forEach(member => {
+        const isSelected = member.id === selectedId;
+        
+        let badgeBg = 'bg-slate-100 text-slate-600 border-slate-200';
+        let dotColor = 'bg-slate-400';
+        if (member.statusColor === 'green') {
+          badgeBg = 'bg-emerald-50 text-emerald-700 border-emerald-200/60';
+          dotColor = 'bg-emerald-500';
+        } else if (member.statusColor === 'amber') {
+          badgeBg = 'bg-amber-50 text-amber-700 border-amber-200/60';
+          dotColor = 'bg-amber-500';
+        }
+
+        const card = document.createElement('div');
+        card.className = `p-3.5 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${
+          isSelected 
+            ? 'bg-white border-blue-500 shadow-md ring-2 ring-blue-500/10' 
+            : 'bg-white/80 hover:bg-white border-slate-200/70 hover:border-slate-300'
+        }`;
+        
+        card.onclick = () => selectMember(member.id);
+
+        card.innerHTML = `
+          <div>
+            <h4 class="text-sm font-bold text-slate-900">${member.name}</h4>
+            <p class="text-xs text-slate-400 font-medium">${member.role}</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeBg}">
+            <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
+            ${member.status}
+          </span>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function selectMember(id) {
+      selectedId = id;
+      const member = team.find(m => m.id === id);
+      if (!member) return;
+
+      // Update Header
+      document.getElementById('member-name').textContent = member.name;
+      document.getElementById('member-role').textContent = member.role;
+
+      let badgeBg = 'bg-slate-100 text-slate-600 border-slate-200';
+      let dotColor = 'bg-slate-400';
+      if (member.statusColor === 'green') {
+        badgeBg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        dotColor = 'bg-emerald-500';
+      } else if (member.statusColor === 'amber') {
+        badgeBg = 'bg-amber-50 text-amber-700 border-amber-200';
+        dotColor = 'bg-amber-500';
+      }
+
+      document.getElementById('member-status-pill').innerHTML = `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${badgeBg}">
+          <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+          ${member.status}
+        </span>
+      `;
+
+      // Update Metrics
+      document.getElementById('metric-productivity').textContent = member.productivity + '%';
+      document.getElementById('bar-productivity').style.width = member.productivity + '%';
+
+      document.getElementById('metric-input').textContent = member.activeInput + '%';
+      document.getElementById('bar-input').style.width = member.activeInput + '%';
+
+      document.getElementById('metric-idle').textContent = member.idleTime + '%';
+      document.getElementById('bar-idle').style.width = member.idleTime + '%';
+
+      document.getElementById('metric-keystrokes').textContent = member.keystrokes;
+      document.getElementById('metric-clicks').textContent = member.clicks;
+      
+      const focusEl = document.getElementById('metric-focus');
+      focusEl.innerHTML = `<span class="${member.focusColor}">${member.focus}</span>`;
+
+      // Update Logs
+      const logContainer = document.getElementById('log-container');
+      logContainer.innerHTML = member.logs.map(log => {
+        return `<div class="flex items-center gap-2">
+          <span class="text-slate-400 font-mono text-[11px]">${log.slice(0, 8)}</span>
+          <span class="text-blue-600 font-semibold text-[11px]">${log.includes('[SYS]') ? '[SYS]' : log.includes('[APP]') ? '[APP]' : log.includes('[AI]') ? '[AI]' : '[GPS]'}</span>
+          <span class="text-slate-700 truncate">${log.split(']').slice(1).join(']')}</span>
+        </div>`;
+      }).join('');
+
+      renderTeamList();
+    }
+
+    // Initialize with default
+    selectMember('david');
+  </script>
+
+</body>
+</html>
