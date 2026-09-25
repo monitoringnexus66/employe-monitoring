@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Edit2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function EditCustomerModal({ tenant, packages }: { tenant: any, packages: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,8 +59,8 @@ export default function EditCustomerModal({ tenant, packages }: { tenant: any, p
         <Edit2 className="w-4 h-4" /> Edit
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in">
+      {mounted && isOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in">
           <div className="bg-[#131722] border border-white/10 p-6 rounded-2xl w-full max-w-xl shadow-2xl relative flex flex-col max-h-[90vh]">
             
             {/* Header */}
@@ -184,7 +190,8 @@ export default function EditCustomerModal({ tenant, packages }: { tenant: any, p
             </div>
 
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
